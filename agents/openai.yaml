@@ -1,0 +1,4 @@
+interface:
+  display_name: "Tauri & Rust Developer"
+  short_description: "Build and review production Tauri v2 apps"
+  default_prompt: "Use $tauri-rust-developer to build or review this Tauri v2 and Rust application."
