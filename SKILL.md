@@ -1,6 +1,6 @@
 ---
 name: tauri-rust-developer
-description: Build, extend, debug, review, test, and prepare Tauri v2 applications with idiomatic Rust backends and web frontends. Use for work involving src-tauri, Cargo or Rust code, tauri.conf.json, commands and invoke IPC, events or channels, managed state, async tasks, capabilities, permissions, scopes, CSP, plugins, sidecars, desktop or mobile builds, packaging, Tauri migrations, or Rust quality in a Tauri project.
+description: Build, extend, debug, review, test, and prepare Tauri v2 applications with idiomatic Rust backends and web frontends. Use for work involving src-tauri, Cargo or Rust code, tauri.conf.json, commands and invoke IPC, events or channels, managed state, async tasks, capabilities, permissions, scopes, CSP, plugins, sidecars, Python-to-Rust migration, desktop or mobile builds, packaging, Tauri migrations, or Rust quality in a Tauri project.
 ---
 
 # Tauri + Rust Developer
@@ -27,6 +27,7 @@ Read only the references needed for the task:
 - Read [desktop-integration.md](references/desktop-integration.md) for windows, WebViews, title bars, splash screens, tray icons, native menus, close/hide behavior, and desktop lifecycle work.
 - Read [mobile-development.md](references/mobile-development.md) for Android/iOS setup, mobile windows, file associations, native bridges, device testing, and store-oriented constraints.
 - Read [sidecars-and-processes.md](references/sidecars-and-processes.md) for external binaries, Node/Python helpers, child-process IPC, artifact naming, permissions, supervision, and shutdown.
+- Read [python-to-rust-migration.md](references/python-to-rust-migration.md) when replacing Python modules, services, sidecars, numerical kernels, validation/parsing code, pandas/NumPy workloads, or data pipelines with Rust or a Rust-backed Python library.
 - Read [plugin-development.md](references/plugin-development.md) when selecting, installing, authoring, permissioning, testing, or publishing a Tauri plugin.
 - Read [files-and-persistence.md](references/files-and-persistence.md) for dialogs, filesystem access, watched paths, settings stores, SQLite/databases, migrations, and secret storage.
 - Read [system-integrations.md](references/system-integrations.md) for notifications, deep links, single-instance behavior, autostart, global shortcuts, clipboard, external opening, and restored window state.
@@ -38,6 +39,7 @@ Read only the references needed for the task:
 - Read [verification.md](references/verification.md) before claiming completion, and for test, debug, build, packaging, or release tasks.
 - Read [coverage-map.md](references/coverage-map.md) when a task falls outside the existing routes or when auditing whether a Tauri subsystem has been overlooked.
 - Read [source-ledger.md](references/source-ledger.md) only when checking tutorial coverage, source currency, contradictions, or the evidence behind a skill rule.
+- Read [python-migration-source-ledger.md](references/python-migration-source-ledger.md) only when auditing the Python-to-Rust tutorial/video corpus, source-specific lessons, or research saturation.
 - Read [provenance.md](references/provenance.md) only when auditing origins, licenses, or the exact source snapshots used to create this skill.
 
 ## Core Workflow
@@ -51,7 +53,8 @@ Identify whether the request is primarily:
 - feature work across frontend and Rust;
 - a Rust-only or frontend-only change;
 - debugging, testing, performance, or security hardening;
-- migration, packaging, signing, or release preparation.
+- migration, packaging, signing, or release preparation;
+- Python-to-Rust migration, extension packaging, or sidecar replacement.
 
 Do not broaden a review or diagnosis into implementation unless requested.
 

@@ -25,7 +25,9 @@ The clone paths refer to the local research workspace used to construct this ski
 
 ## Research Corpus
 
-The parent workspace also preserves pinned official-document and community indexes under `research-sources/`, 21 downloaded YouTube caption/metadata sets, the official 270-page community PDF plus extracted text and representative renders, and snapshots of selected written tutorials. These are research evidence, not redistributed skill dependencies. Exact source decisions are in [source-ledger.md](source-ledger.md).
+The parent workspace also preserves pinned official-document and community indexes under `research-sources/`, 21 downloaded Tauri YouTube caption/metadata sets, the official 270-page community PDF plus extracted text and representative renders, and snapshots of selected written tutorials. These are research evidence, not redistributed skill dependencies. Exact Tauri source decisions are in [source-ledger.md](source-ledger.md).
+
+A separate 2026-08-22 research pass reviewed 23 complete English YouTube caption tracks about Python-to-Rust migration, PyO3, Pydantic, Polars and scientific/data workloads, plus current primary Rust, PyO3, maturin, Arrow, Polars, DataFusion, CPython and production-case-study documentation. Captions and source prose are not included. The source-by-source decisions and saturation boundary are published in [python-migration-source-ledger.md](python-migration-source-ledger.md).
 
 ## Synthesis Decisions
 

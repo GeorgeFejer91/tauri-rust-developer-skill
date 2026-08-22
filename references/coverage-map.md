@@ -24,6 +24,9 @@ Use this map to route uncommon tasks and identify missing expertise. A checked i
 
 ## Data and Integrations
 
+- [x] incremental Python-to-Rust migration, PyO3/maturin packaging, semantic parity, and rollback
+- [x] NumPy/Arrow/Polars/DataFusion boundaries and Rust-backed data-science pipelines
+- [x] Python sidecar-to-native Tauri migration and permission reduction
 - [x] filesystem, dialogs, watches, path safety, handles, and persisted scopes
 - [x] SQLite/database ownership, migrations, transactions, and upgrade safety
 - [x] settings stores and Stronghold-style secret-vault strategy
@@ -70,4 +73,4 @@ Before filling an unchecked area, prefer this source order:
 4. full written tutorials or full video transcripts;
 5. community reports for failure modes and operational caveats.
 
-Record every processed tutorial in [source-ledger.md](source-ledger.md), including sources that are rejected as stale, duplicated, inaccessible, or unsafe. Update this map only when the synthesized skill actually gains the coverage.
+Record Tauri tutorials in [source-ledger.md](source-ledger.md) and Python migration sources in [python-migration-source-ledger.md](python-migration-source-ledger.md), including sources that are rejected as stale, duplicated, inaccessible, or unsafe. Update this map only when the synthesized skill actually gains the coverage.

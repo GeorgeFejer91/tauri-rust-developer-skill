@@ -21,6 +21,7 @@ The compact [SKILL.md](SKILL.md) routes work into focused references covering:
 - windows, WebViews, title bars, splash screens, tray icons, menus, and lifecycle;
 - Android/iOS architecture, native plugins, JNI/FFI, devices, signing, and stores;
 - sidecars and long-lived Python, Node, Go, or native child processes;
+- incremental Python-to-Rust migration, PyO3/maturin extensions, sidecar replacement, and Rust-backed data-science pipelines;
 - filesystem access, settings, SQLite, migrations, keychains, and encrypted storage;
 - networking, OAuth, WebSockets, transfers, localhost services, and native libraries;
 - React, Vue, Svelte, Solid, Angular, Next.js, Nuxt, Qwik, and Rust/WASM frontends;
@@ -62,7 +63,7 @@ Follow the current Claude Code skill-discovery rules if your installation uses a
 
 ## Evidence and Version Policy
 
-The guidance was synthesized from pinned Rust/Tauri/Codex/Claude skill repositories, current official Tauri documentation and examples, Awesome Tauri, written tutorials, production case studies, a 270-page community book, and 21 accessible YouTube tutorial transcript sets.
+The guidance was synthesized from pinned Rust/Tauri/Codex/Claude skill repositories, current official Tauri, Rust, PyO3, maturin, Arrow, Polars, DataFusion and CPython documentation, written tutorials, production case studies, a 270-page community book, 21 Tauri tutorial transcript sets, and 23 individually reviewed Python-to-Rust video transcript sets.
 
 The [source ledger](references/source-ledger.md) records every processed source as adopted, confirmed, corrected, partial, or rejected. It deliberately rejects stale Tauri v1 configuration, disabled CSP, broad filesystem/shell/network authority, fictional APIs, panic-heavy runtime code, unauthenticated localhost protocols, and unsafe release shortcuts.
 
@@ -80,6 +81,8 @@ Tauri and platform tooling change quickly. A project's pinned versions take prec
     ├── tauri-architecture.md
     ├── rust-quality.md
     ├── tauri-security.md
+    ├── python-to-rust-migration.md
+    ├── python-migration-source-ledger.md
     └── ...
 ```
 

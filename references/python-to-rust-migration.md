@@ -1,0 +1,186 @@
+# Python-to-Rust Migration
+
+Use this module when replacing Python modules, services, sidecars, numerical kernels, validation/parsing code, or data pipelines with Rust. The default is an incremental, reversible migration that preserves a Python-facing or Tauri-facing contract. A full rewrite needs stronger evidence than a successful prototype.
+
+## Contents
+
+- [Choose the Smallest Useful Move](#choose-the-smallest-useful-move)
+- [Prove the Case Before Porting](#prove-the-case-before-porting)
+- [Freeze Behavior as an Executable Contract](#freeze-behavior-as-an-executable-contract)
+- [Use a Strangler Migration](#use-a-strangler-migration)
+- [Translate the Model, Not the Syntax](#translate-the-model-not-the-syntax)
+- [Build a Python Extension Correctly](#build-a-python-extension-correctly)
+- [Keep Data Crossing Cheap](#keep-data-crossing-cheap)
+- [Migrate a Python Tauri Sidecar](#migrate-a-python-tauri-sidecar)
+- [AI-Assisted Ports](#ai-assisted-ports)
+- [Release Gate](#release-gate)
+- [Authoritative Live References](#authoritative-live-references)
+
+## Choose the Smallest Useful Move
+
+| Need | Default route | Why |
+|---|---|---|
+| Faster pandas-style transformations | Try Rust-backed Python tools such as Polars or DataFusion first | Gains may require no Rust maintenance |
+| One CPU-heavy parser, validator, or algorithm | Mixed Python/Rust package with PyO3 and maturin | Preserves Python callers and tests |
+| NumPy/Arrow batch kernel | PyO3 plus rust-numpy or Arrow's standardized interchange | Avoids per-element object conversion |
+| Existing Python worker in Tauri | Keep it as a supervised sidecar, then replace one protocol operation at a time | Provides rollback and isolates packaging risk |
+| New native Tauri capability | Implement an in-process Rust service behind typed commands | Avoids adding a Python runtime when none is needed |
+| Independent service with a stable network contract | Build one Rust service alongside the Python service | Enables shadow traffic and staged cutover |
+| Python application whose main constraint is not solved by Rust | Keep Python | A rewrite adds cost without removing the bottleneck |
+
+Prefer an existing native-backed Python library over custom Rust when it already implements the required semantics. NumPy, PyTorch, Polars, PyArrow, DuckDB, DataFusion, Numba, and domain libraries may already execute the expensive work outside the Python interpreter.
+
+## Prove the Case Before Porting
+
+Write a migration brief containing:
+
+- the user-visible or caller-visible contract;
+- the actual constraint: CPU, peak/resident memory, tail latency, startup, concurrency, deployment, correctness, or security;
+- a profile or trace locating the cost;
+- an idiomatic optimized Python/library baseline, not a deliberately slow Python loop;
+- representative datasets, platforms, architectures, and warm/cold conditions;
+- a rollback path and an owner for the Rust code.
+
+Reject "Python is slow" as a sufficient diagnosis. Measure I/O, database/network waits, Python/native conversion, allocation, serialization, memory layout, query plans, subprocess startup, and frontend IPC separately. Use optimized release builds for Rust comparisons.
+
+Do not proceed merely because a toy benchmark is faster. A port is justified when the measured end-to-end benefit exceeds boundary, packaging, training, and maintenance costs.
+
+## Freeze Behavior as an Executable Contract
+
+Before changing the implementation, inventory and test:
+
+- public functions, classes, CLI flags, environment variables, configuration and wire formats;
+- return types, exception classes/messages that callers rely on, exit codes and logging fields;
+- accepted coercions, missing/null behavior, defaults and invalid-input behavior;
+- integer width/overflow, float/NaN/infinity and comparison tolerances;
+- Unicode normalization, code points versus UTF-8 byte offsets, invalid byte handling;
+- ordering, hashing, duplicates, categorical values, time zones, daylight-saving transitions;
+- RNG algorithm/seed behavior and reproducibility requirements;
+- cancellation, retries, partial writes, concurrency and resource cleanup.
+
+Build golden fixtures from production-shaped edge cases. Run the old and new implementations against the same inputs and compare normalized outputs. Add property tests for invariants and fuzz parsers or other untrusted-input boundaries. Compilation proves type and ownership consistency; it does not prove behavioral parity.
+
+## Use a Strangler Migration
+
+1. Select one high-value component with a clean boundary.
+2. Give the Rust implementation the same public API or versioned protocol.
+3. Keep the Python implementation as an explicit fallback during validation.
+4. Run differential tests in CI; shadow or dual-run in production where side effects can be isolated.
+5. Compare correctness, latency distributions, memory, throughput and failure behavior.
+6. Cut over a bounded caller cohort or feature flag.
+7. Expand only after the evidence holds under representative load.
+8. Remove the old path only after the rollback window and compatibility obligations are satisfied.
+
+Avoid editing both implementations independently for long periods. Define one conformance suite and one ownership plan for shared schemas and fixtures.
+
+## Translate the Model, Not the Syntax
+
+| Python habit | Rust model | Migration warning |
+|---|---|---|
+| `None` or sentinel | `Option<T>` or an explicit enum | Distinguish absent, null, empty and invalid |
+| exceptions | `Result<T, E>` with domain error enums | Convert expected failures; do not expose panics |
+| dict-shaped records | typed structs plus Serde | Preserve unknown-field and coercion policy |
+| inheritance-heavy classes | structs, enums, traits and composition | Do not reproduce a Python class hierarchy mechanically |
+| mutable shared objects | ownership, borrowing, channels or deliberate synchronization | Cloning everything hides a poor ownership design |
+| generators | `Iterator`, async streams or channels | Preserve laziness, cancellation and backpressure |
+| context managers | RAII guards plus explicit fallible shutdown when needed | `Drop` cannot report cleanup failure |
+| `asyncio` everywhere | async Rust for concurrent I/O; worker pools/Rayon for CPU work | Do not hold locks across `.await` or block an async executor |
+| arbitrary-size integers | a chosen fixed width or big-integer crate | Test overflow and serialization boundaries |
+| Python strings | UTF-8 `String`/`&str` or explicit bytes | Byte indexing is not Python string indexing |
+| unordered mappings | `HashMap` or ordered alternatives | Never depend accidentally on a different iteration order |
+
+Treat borrow-checker friction as design feedback. First simplify ownership and data flow; add `Arc`, locks, interior mutability, lifetime complexity, or cloning only when the domain genuinely requires them.
+
+## Build a Python Extension Correctly
+
+For an existing Python package, prefer maturin's current mixed Rust/Python layout. Keep the Python package as the public facade and give the native module a private name such as `_core`. This keeps docstrings, type hints, compatibility adapters and a fallback path easy to maintain.
+
+Start with one tiny function and verify `maturin develop` plus a Python import test. Then:
+
+- make each boundary call coarse enough to amortize conversion and call overhead;
+- accept and return batches, buffers, arrays or record batches instead of Python objects per element;
+- use `PyResult`/error conversions to raise idiomatic Python exceptions;
+- catch and prevent Rust panics at the boundary; validate sizes and recursion depth;
+- keep Python object access inside an attached interpreter context;
+- detach from the interpreter for long Rust-only work, including on free-threaded builds;
+- do not retain borrowed Python views beyond their permitted lifetime;
+- make `#[pyclass]` thread-safety intentional; immutable/frozen objects are easier to reason about;
+- test GIL-enabled and free-threaded interpreters only when the supported matrix promises both;
+- ship `.pyi` stubs and `py.typed`, and test the installed wheel rather than only a source-tree import;
+- decide whether `abi3` reduces the wheel matrix without excluding APIs or performance the package needs.
+
+`maturin develop --release` is a development benchmark, not release validation. Build wheels in CI for every supported operating system, architecture, Python ABI and libc family; install each wheel into a clean environment and run Python-level contract tests. If no matching wheel exists, users need a working Rust build toolchain, so missing artifacts are a product compatibility failure.
+
+## Keep Data Crossing Cheap
+
+### NumPy and numerical code
+
+Use rust-numpy/`ndarray` views for compatible contiguous or strided data instead of converting arrays to Python lists. State dtype, dimensions, shape, strides, mutability, alignment and aliasing requirements. Prefer a new output buffer unless in-place mutation is part of the public contract and can be proven safe.
+
+Compare against vectorized NumPy, compiled ufuncs, Numba and existing native libraries before writing Rust. Preserve broadcasting, dtype promotion, reduction order, BLAS/thread-pool behavior and numerical tolerances. Reproducibility may change when parallel reductions reorder floating-point operations.
+
+### Arrow, Polars and query engines
+
+Use Arrow's C Data/PyCapsule interfaces and `__arrow_c_array__`/`__arrow_c_stream__` rather than materializing rows as Python dictionaries. Honor producer lifetimes, null bitmaps, schemas, chunking, extension types and ownership callbacks.
+
+For pandas-to-Polars work, adopt expressions and lazy query plans; do not translate index mutation and row-wise `apply` calls literally. Check:
+
+- null versus NaN behavior and dtype strictness;
+- index/multi-index assumptions that need real columns;
+- categorical ordering, time zones and joins with duplicate keys;
+- stable ordering only where explicitly requested;
+- projection/predicate pushdown and query-plan inspection;
+- peak memory, streaming support and storage throughput on the actual workload;
+- plotting, scikit-learn and notebook integrations at the boundary.
+
+For custom analytics, first consider a Rust-backed Python DataFusion/Polars extension or Arrow-native UDF. Row-by-row conversion to Python objects is usually the wrong seam.
+
+## Migrate a Python Tauri Sidecar
+
+Read [sidecars-and-processes.md](sidecars-and-processes.md), [tauri-architecture.md](tauri-architecture.md), and [tauri-security.md](tauri-security.md) as well.
+
+Treat the existing sidecar protocol as the migration boundary:
+
+1. capture protocol frames, errors, readiness, cancellation and shutdown in conformance tests;
+2. isolate Python domain logic from process/bootstrap code;
+3. implement one message or command in a Rust library;
+4. expose it through the existing sidecar during the first parity phase, or add a Rust-native Tauri command behind the same typed frontend wrapper;
+5. dual-run read-only operations and compare replies;
+6. switch the frontend wrapper, capability and managed-state wiring for that operation only;
+7. preserve a bounded fallback until packaged-target tests pass;
+8. remove the Python runtime, PyInstaller artifacts and shell authority only after every operation has moved.
+
+Do not replace a narrow sidecar with broad generic shell access. If the Rust implementation moves in process, reduce capabilities and delete obsolete process permissions. Re-test app startup, shutdown, crash isolation, cancellation, logs, installer size, signing and updater artifacts on every target.
+
+## AI-Assisted Ports
+
+Use an AI tool only on bounded components with an objective conformance suite. Require it to explain ownership, error, unsafe, dependency and semantic choices. Review every new crate and generated `unsafe` block. Reject ports that compile by adding blanket clones, `unwrap`, broad locks, lossy casts, unbounded allocation, ignored errors or silent semantic changes.
+
+An effective loop is: translate one seam, compile, run differential/property tests, profile, review idioms/security, then refactor. Never ask a model to rewrite the whole repository and treat successful compilation as completion.
+
+## Release Gate
+
+Before deleting Python or declaring the migration complete, verify:
+
+- old and new conformance suites pass on production-shaped fixtures;
+- expected failures map to stable Python/Tauri errors rather than panics;
+- release benchmarks improve the declared constraint end to end;
+- memory, thread count, file descriptors and long-run behavior are bounded;
+- Python/native boundaries use batched or zero-copy interchange where practical;
+- wheels, binaries, sidecars, licenses, SBOM and signatures cover the target matrix;
+- clean-machine installs do not unexpectedly require Cargo or Python;
+- rollback, data compatibility and observability work in packaged builds;
+- the team can maintain, review and operate the Rust component.
+
+## Authoritative Live References
+
+- PyO3 guide: <https://pyo3.rs/main/>
+- maturin guide: <https://www.maturin.rs/>
+- Rust for Python Programmers: <https://microsoft.github.io/RustTraining/python-book/>
+- Polars migration guide: <https://docs.pola.rs/user-guide/migration/pandas/>
+- rust-numpy: <https://docs.rs/numpy/latest/numpy/>
+- Apache Arrow Python integration: <https://arrow.apache.org/docs/python/integration.html>
+- DataFusion Python: <https://datafusion.apache.org/python/>
+- CPython free-threading guide: <https://docs.python.org/3/howto/free-threading-python.html>
+
+For the tutorial/video corpus, source-specific lessons and currency notes, read [python-migration-source-ledger.md](python-migration-source-ledger.md).

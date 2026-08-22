@@ -98,6 +98,8 @@ This ledger tracks external material inspected while expanding the skill. It sep
 
 ## Search and Access Limitations
 
+The later Python-to-Rust migration research is maintained separately in [python-migration-source-ledger.md](python-migration-source-ledger.md): 40 maintained written/primary resources and 23 individually reviewed YouTube caption tracks, checked 2026-08-22.
+
 - Twenty-one English YouTube subtitle tracks plus matching metadata were downloaded and read. A later targeted sweep found additional long-form Android, sidecar, plugin, testing, and conference videos, but YouTube began returning HTTP 429 for caption endpoints; titles alone were not treated as evidence.
 - “All tutorials online” is not a finite enumerable set. Search used broad and topic-specific queries across official docs, GitHub, written tutorials, community books, and YouTube until repeated queries produced duplicates, marketing comparisons, or patterns already covered. This ledger makes that saturation boundary auditable.
 - Search snippets were discovery aids only. A source received `adopted` status only after its accessible page, transcript, PDF text/render, documentation, or repository content was inspected.
