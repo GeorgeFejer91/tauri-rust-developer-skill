@@ -25,6 +25,12 @@ local and remote presentation adapters
 
 Do not make the network handler mutate DOM controls and then read them back as application state. Do not feed returned authoritative display placement into the next upstream local-intent frame; that creates a feedback loop.
 
+## Separate Public Discovery From Private Control
+
+A public discovery plane may advertise a bounded target label, transport route, protocol/profile version, and short-lived invitation locator. It must not carry the pairing secret, proof, accepted grant, participant/private state, or native owner handle. Treat a discovered room, stream, peer UUID, or beacon as a routing hint; only the private authenticated control session can establish identity and authority.
+
+A static HTTPS companion page may distribute reviewed, hash-pinned SDK and application bytes without constructing the SDK, joining a room, or opening a network connection on load. Construction and networking still require a current explicit Start/Connect gesture, and Stop/page hide must quiesce producers before disconnecting. Publicly reachable bytes or discovery infrastructure prove neither authenticated authority nor an availability, privacy, relay-capacity, or support SLA; record which signaling/TURN/discovery service the product actually operates or depends on.
+
 ## Make the App Remote-Ready, Not Remote-Open
 
 For a new app, design one internal semantic action boundary even if networking is not yet shipped. Local UI, an optional local CLI, automation tests, and a future remote companion can adapt into that boundary without sharing their parsers or authority:
@@ -73,6 +79,8 @@ Use presentation-only mode when the remote result should affect only what the se
 
 Observation authority is separate from mutation authority. A read scope must gate every state-bearing path: the initial snapshot, requested snapshots, live publication, state heartbeats, and any snapshot embedded in an acknowledgement. When a peer has mutation scope but no read scope, return only the bounded command/result metadata needed to acknowledge that operation.
 
+When the transport and native mutation seam are both new, qualify an authenticated read-only observer first: grant only the read scope, advertise no mutating actions, and publish a sanitized authoritative snapshot. This smaller slice exercises packaged WebView-to-hosted-browser transport, proof, route diagnostics, stale behavior, Stop, and lifecycle without creating a second mutation authority. Add mutation only after that path is qualified; do not quietly route observer traffic through a local-action API.
+
 ## Activation, Pairing, Proof, and Revocation
 
 Remote networking must be inert on page load. A defensible session flow is:
@@ -93,6 +101,8 @@ The WebView can own connection and framing without owning native authorization. 
 
 A minimal native-authority IPC contract can use four fixed operations: local-only `remote_begin_session(profile)` creates Rust-held session/secret/epoch state and returns bounded public invitation material; `remote_verify_peer(transcript, peer_proof)` independently canonicalizes the transcript, verifies the peer's role-bound proof, generates and returns the local role-bound proof for the bridge to send, and stores an opaque expiring grant bound to the caller window; `remote_apply_action(grant_handle, typed_action)` rechecks that stored grant, scope, epoch, revision, and action; and `remote_stop_session(grant_handle)` revokes and neutralizes it. The verify result should be an exact DTO such as `{ local_proof, grant_handle, accepted_scopes, expires_at }`, and the WebView must not expose the handle to the remote peer. Do not return the pairing secret after initial handoff, accept a frontend-supplied grant object, or let a grant handle select arbitrary scopes. Define exact DTOs, proof ordering, and secret zeroization/lifetime for the pinned application rather than copying these names blindly.
 
+If a bundled WebView retains the browser-native handshake, every mutation-capable path still needs an owner-fenced native seam equivalent to `claim`, `renew`, `dispatch`, and `revoke`. Claim only the currently enabled session and a scope subset allowed by local policy, then have Rust mint a fresh opaque owner token bound to the exact window, session/epoch, controller, and scope set. Renew only after a fresh canonical control sequence and use a Rust monotonic deadline. Dispatch a closed typed command through the remote reducer origin—never through the local dispatcher—and recheck owner, scope, sequence, revision, action, and current preconditions. Revoke or deadman expiry must compare-and-clear that exact owner and pause or neutralize active output atomically. A late renew, dispatch, close, or page-hide from an old owner must be inert against its replacement. This pattern preserves native safety fencing; it does not turn browser-side proof into a native attestation, so document that trust choice or move proof verification into Rust when the threat model requires it.
+
 Public labels, room names, discovered stream IDs, peer UUIDs, and successful transport connection are routing metadata, not identity. Production account identity, invitation expiry/revocation, abuse controls, and audit policy are separate product services.
 
 ## Separate Reliable Control From Replaceable State
@@ -105,6 +115,8 @@ Do not give every message the same delivery semantics.
 | Replaceable intent/state | joystick, pointer, slider, current affect state, live scene | complete current value, newest-only backpressure, sequence/epoch checks, heartbeat and stale policy |
 
 Use one duplex peer connection or socket unless isolation or measurements justify more. A separate reverse media stream is unnecessary for ordinary state return.
+
+When a transport opens separate control and state channels, install SDK/channel listeners before connect, join, announce, or view. The peer may deliver either channel before the corresponding `openChannel` promise returns or before the other lane and application consumer are ready. Bind every event to the selected stream, peer UUID, connection generation, and exact channel instance; retain only a bounded pre-open reliable-control queue and the newest pending state. Enter application-ready only after all required lanes are bound, then drain reliable control in order and publish only the latest state. Reject overflow, duplicate lanes, wrong-peer channels, and late open/message/close events from an earlier generation.
 
 For continuous input:
 
@@ -209,6 +221,14 @@ Automated coverage should include:
 Then qualify the real matrix: packaged WebView2, WKWebView, and WebKitGTK targets as supported; physical Android Chrome and iOS Safari companions; both host directions; direct and forced-relay routes; phone background/lock; WebView reload/destruction; network handoff; congestion; and multi-peer limits. Browser responsive emulation, mocks, a successful Rust compile, or a Vite build do not prove physical cross-runtime behavior.
 
 Report exact measured endpoints and untested boundaries. Do not claim “direct Wi-Fi,” “offline LAN,” “real time,” “same pixels,” “secure identity,” or protocol conformance unless the corresponding route, timing, identity service, and conformance fixtures were actually exercised.
+
+## Keep Product Contexts Separate
+
+The discovery/control split, typed owner-fenced native seam, target-owned deadman, bounded channel bring-up, and staged read-only qualification are general Tauri remote-control patterns. Product policy belongs in the application profile:
+
+- A PPS experiment runner may revoke local arm when participant, package, calibration, device route, or output configuration changes, and may classify browser audio/vibration as exploratory. Those are PPS safety and evidence rules, not defaults for every Tauri remote.
+- An immersive Quest target is a separate native Android/OpenXR or Spatial SDK application context. Reuse transport-neutral contracts and Rust reducer logic through a narrow JNI/native adapter, but keep the headset lifecycle, frame loop, input, audio/haptics, packaging, and physical-device qualification outside the Tauri shell. Read [vr-xr-development.md](vr-xr-development.md) only for an explicitly requested XR task.
+- A generic desktop or browser product should define its own neutral state, local confirmation, identity, audit, and availability policy instead of inheriting either PPS or Quest assumptions.
 
 ## Architecture Sources and Qualification Limits
 
