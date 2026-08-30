@@ -172,6 +172,10 @@ For experiment, acquisition, media, or device-control software, define parity as
 
 Keep the validated Python implementation as the behavioral or scientific oracle while these seams move. Use golden and differential fixtures for software semantics, but do not substitute them for physical loopback, onset, device-route, or long-run qualification. Each Windows, macOS, Linux, mobile, or XR backend needs evidence for the hardware boundary it actually owns.
 
+Model “accepted and verified” separately from “executable and qualified.” A Rust parser may prove legacy schema, ordering, path, and hash parity before the native scheduler or device adapter exists. Let the reducer adopt that verified identity, but keep arming/start unavailable until the execution adapter is real; never route a verified production package through a demo executor. Local package replacement should disarm and invalidate stale remote/controller authority. Retain path-bearing verification receipts only in native state, return a sanitized summary to the WebView, and reverify at execution time. Preserve legacy source-host path semantics while reading the old format; add an explicit relocatable/content-addressed schema instead of silently reinterpreting embedded absolute paths on another operating system.
+
+For an expensive differential oracle, batch several independent fixtures through one native probe process and compare both success/failure and the stable first-failure message. Include a valid modern case, provenance/hash drift, ordering/count drift that reaches the intended check, and a legacy/defaulted case. This gives the pure Rust seam a fast executable contract without making Python the final runtime authority.
+
 Define the Python-free finish line before claiming completion: a clean-machine default installation starts and completes every required operation without Python, PySide, PyInstaller, or a Python worker. An optional, bounded, supervised compatibility worker can be a migration tool, but it must not remain the hidden final authority or be counted as a Rust-only distribution.
 
 ## Release Gate

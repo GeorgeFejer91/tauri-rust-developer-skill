@@ -34,6 +34,8 @@ Desktop dialogs generally return paths. Mobile differs: iOS can return file URLs
 
 For destructive confirmation dialogs, describe the exact consequence and make the safer action the default. Avoid blocking Rust dialog APIs on an async or UI-sensitive path when a callback/non-blocking form works.
 
+When path choice itself is privileged, expose a no-argument application command and open the operating-system picker in Rust. Do not accept a caller-supplied path merely because the same WebView could have opened a dialog. If the frontend does not need direct dialog commands, initialize the plugin for Rust use without granting its frontend open permission. Keep the path-bearing verified object native and non-serializable; return a bounded path-free summary and stable sanitized errors across IPC. A digest recorded during inspection is evidence of what was checked, not a permanent capability: reverify the retained receipt immediately before consequential use to close the time-of-check/use gap.
+
 ## Filesystem Design
 
 - Prefer application config/data/cache/log directories for app-owned files.
