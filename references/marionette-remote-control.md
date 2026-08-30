@@ -81,6 +81,8 @@ Use presentation-only mode when the remote result should affect only what the se
 
 Observation authority is separate from mutation authority. A read scope must gate every state-bearing path: the initial snapshot, requested snapshots, live publication, state heartbeats, and any snapshot embedded in an acknowledgement. When a peer has mutation scope but no read scope, return only the bounded command/result metadata needed to acknowledge that operation.
 
+When a browser handshake feeds a separate native owner seam, negotiated read scope is necessary but not sufficient for native state publication. Suppress the initial snapshot and live state until native claim succeeds, make each requested snapshot await a fresh native renewal, and stop publishing when the native controller identity or deadline no longer matches. Otherwise a peer can receive participant/private state during the gap before a busy, disabled, mismatched, or expired Rust owner rejects it.
+
 When the transport and native mutation seam are both new, qualify an authenticated read-only observer first: grant only the read scope, advertise no mutating actions, and publish a sanitized authoritative snapshot. This smaller slice exercises packaged WebView-to-hosted-browser transport, proof, route diagnostics, stale behavior, Stop, and lifecycle without creating a second mutation authority. Add mutation only after that path is qualified; do not quietly route observer traffic through a local-action API.
 
 ## Activation, Pairing, Proof, and Revocation
@@ -156,6 +158,8 @@ Use a dedicated local WebView label for remote settings and grant it only the co
 
 Prefer a locally vendored, pinned transport SDK with reviewed license and integrity over a runtime `latest` script. Keep `script-src 'self'` when possible. Add only the exact signaling, credential, or API origins to `connect-src`; do not add `*`, `unsafe-eval`, arbitrary remote navigation, broad HTTP-plugin access, or permissive development origins to make networking work.
 
+A hosted page with local Approve, Arm, output, or credential-handoff controls is a clickjacking target. Send `Content-Security-Policy: frame-ancestors 'none'` (or an exact reviewed allowlist) as an HTTP response header; a meta CSP cannot enforce `frame-ancestors`. When static hosting cannot set that header, also fail closed before binding any controls or network path when `window.top !== window.self`, strip fragment credentials, disable the interface, and require direct navigation. Treat the runtime check as defense in depth, not a substitute for owned response headers.
+
 WebRTC ICE traffic and firewall behavior are not fully described by CSP `connect-src`. Test the packaged app on every WebView engine and network class. A restrictive CSP does not replace transport authentication, and a Tauri capability does not make JavaScript-held credentials secret.
 
 Never load the phone companion or other untrusted remote content inside a privileged application WebView. Host it separately over HTTPS and open links in the system browser through a narrow validated operation.
@@ -191,6 +195,8 @@ For a Party/shared-scene profile, maintain one independently authenticated conne
 ## Lifecycle and Failure Behavior
 
 Define behavior for owner-window reload/destruction, phone background/lock, network loss/change, sleep/wake, signaling outage, TURN failure, duplicate Start, simultaneous Stop, stale state, and reconnect. Stop reconnecting after explicit Stop or revocation. Keep connection status, accepted scopes, peer label, route class, stale state, and Stop affordance visible and accessible.
+
+At every asynchronous authority boundary, recheck ownership after the `await` and immediately before the side effect. A pre-await generation check does not stop a delayed claim, picker, permission, transport, or IPC result from mutating after Stop/page hide/disarm replaced or revoked its owner. Keep revocation immediate and let the native owner token make any late operation stale.
 
 Do not silently transfer authority to another peer or local automation on failure. For presentation, retaining the last scene with an explicit stale indication may be appropriate. For an active momentary control, lease expiry should neutralize it. Privileged irreversible actions need stronger confirmation/interlocks than a low-latency companion button.
 
