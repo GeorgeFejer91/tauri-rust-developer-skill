@@ -10,6 +10,10 @@ The skill treats a Tauri application as one system:
 - platform-aware desktop and mobile integrations;
 - tested, signed, and recoverable release pipelines.
 
+Tauri desktop/mobile application work is the core scope. Specialized contexts
+such as immersive Quest/OpenXR shells are routed to separate references and are
+loaded only when the request explicitly calls for them.
+
 ## Coverage
 
 The compact [SKILL.md](SKILL.md) routes work into focused references covering:
@@ -20,6 +24,7 @@ The compact [SKILL.md](SKILL.md) routes work into focused references covering:
 - capabilities, permissions, scopes, CSP, remote content, and supply-chain security;
 - windows, WebViews, title bars, splash screens, tray icons, menus, and lifecycle;
 - Android/iOS architecture, native plugins, JNI/FFI, devices, signing, and stores;
+- optional native immersive Android/Meta Quest/OpenXR architecture, shared Rust cores, JNI build correctness, and headset evidence boundaries;
 - sidecars and long-lived Python, Node, Go, or native child processes;
 - incremental Python-to-Rust migration, PyO3/maturin extensions, sidecar replacement, and Rust-backed data-science pipelines;
 - filesystem access, settings, SQLite, migrations, keychains, and encrypted storage;
@@ -70,6 +75,10 @@ The guidance was synthesized from pinned Rust/Tauri/Codex/Claude skill repositor
 The [source ledger](references/source-ledger.md) records every processed source as adopted, confirmed, corrected, partial, or rejected. It deliberately rejects stale Tauri v1 configuration, disabled CSP, broad filesystem/shell/network authority, fictional APIs, panic-heavy runtime code, unauthenticated localhost protocols, and unsafe release shortcuts.
 
 Tauri and platform tooling change quickly. A project's pinned versions take precedence, and current official Tauri, Rust, frontend-framework, operating-system, and store documentation override community examples when they conflict.
+
+The optional XR reference is grounded separately in current Meta, Khronos
+OpenXR, and Android sources recorded in the source ledger; those rules do not
+alter the default Tauri workflow.
 
 ## Repository Structure
 

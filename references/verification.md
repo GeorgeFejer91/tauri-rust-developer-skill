@@ -31,6 +31,8 @@ cargo test --manifest-path src-tauri/Cargo.toml --all-features
 
 Use the repository's CI feature matrix when `--all-features` is invalid, overly expensive, or platform-specific.
 
+If the workspace declares `rust-version`, run at least `check` and the relevant tests with that exact toolchain and resolved lockfile. Passing on a newer compiler does not validate the MSRV claim.
+
 ### 3. Frontend Gates
 
 Run only scripts that exist, using the detected package manager. Common categories are:
@@ -57,6 +59,10 @@ Tauri's end-to-end tooling is version- and platform-sensitive. Consult the curre
 
 Test platform-specific features on their target operating systems. If only one platform is available, clearly state the untested matrix. Cross-compilation or a successful compile does not prove runtime integration, installer behavior, permissions, or signing.
 
+For a shared core, run pure crate tests on each promised desktop OS, then build the Tauri shell host-natively on each OS. Treat Android/XR as a separate Gradle/NDK/ABI/artifact/device matrix rather than evidence that follows from the desktop build.
+
+For opt-in remote networking, launch the packaged or debug executable before activation and verify that it owns no LAN/remote-control listener attributable to that feature. Also test recoverable bind failure, disabled ingress, authority rotation/disable while active, stale connection cleanup after replacement, and target-owned deadman expiry.
+
 ### 6. Build and Packaging
 
 For package-related changes, run the repository's production Tauri build when the environment and requested scope permit it. Inspect generated artifacts without publishing them. Verify:
@@ -66,6 +72,8 @@ For package-related changes, run the repository's production Tauri build when th
 - minimum operating-system versions and architectures;
 - updater configuration, if present;
 - installer/runtime behavior and absence of development credentials or debug capabilities.
+
+Inspect Android/native artifacts for unexpected ABIs, permissions, cleartext policy, JNI symbols, and stale libraries. When a native-build bypass exists, seed an old library and prove that the bypass artifact excludes it. When compiled frontend assets are committed, rebuild them and require zero generated drift.
 
 ## Release Boundary
 

@@ -68,6 +68,14 @@ Use this map to route uncommon tasks and identify missing expertise. A checked i
 - [x] Android/iOS architecture, lifecycle, windows, associations, and device-test strategy
 - [x] Android/iOS signing and store delivery
 
+## Optional Application Contexts
+
+- [x] explicitly requested native immersive Android/Quest/OpenXR shells, shared Rust reducers, narrow JNI boundaries, and headset lifecycle ownership
+- [x] Android XR Rust build-graph inputs, stale JNI-library exclusion, ABI/manifest inspection, and headset evidence hierarchy
+
+Do not load these context-specific rules for ordinary Tauri work merely because
+the project uses Android or Rust.
+
 ## Research Rule
 
 Before filling an unchecked area, prefer this source order:

@@ -43,6 +43,8 @@ Write a migration brief containing:
 
 Reject "Python is slow" as a sufficient diagnosis. Measure I/O, database/network waits, Python/native conversion, allocation, serialization, memory layout, query plans, subprocess startup, and frontend IPC separately. Use optimized release builds for Rust comparisons.
 
+A Tauri shell around an unchanged Python/PySide worker can improve UI architecture and isolation, but it does not deliver the main runtime, startup, or installed-size reduction while the default artifact still ships Python and its native dependencies. State that packaging boundary explicitly instead of attributing a size win to the shell.
+
 Do not proceed merely because a toy benchmark is faster. A port is justified when the measured end-to-end benefit exceeds boundary, packaging, training, and maintenance costs.
 
 ## Freeze Behavior as an Executable Contract
@@ -157,6 +159,20 @@ Do not replace a narrow sidecar with broad generic shell access. If the Rust imp
 Use an AI tool only on bounded components with an objective conformance suite. Require it to explain ownership, error, unsafe, dependency and semantic choices. Review every new crate and generated `unsafe` block. Reject ports that compile by adding blanket clones, `unwrap`, broad locks, lossy casts, unbounded allocation, ignored errors or silent semantic changes.
 
 An effective loop is: translate one seam, compile, run differential/property tests, profile, review idioms/security, then refactor. Never ask a model to rewrite the whole repository and treat successful compilation as completion.
+
+## Scientific and Hardware-Coupled Applications
+
+For experiment, acquisition, media, or device-control software, define parity as several separate contracts rather than one feature checklist:
+
+- accepted packages, schemas, legacy aliases, ordering, and hashes;
+- sample-clock scheduling, callback boundaries, response timestamps, and clock mapping;
+- device routing, calibration, safety limits, and target-specific output adapters;
+- event logs, acquisition streams, durable artifacts, exports, and recovery behavior;
+- numerical analysis, tolerances, model selection, and generated reports.
+
+Keep the validated Python implementation as the behavioral or scientific oracle while these seams move. Use golden and differential fixtures for software semantics, but do not substitute them for physical loopback, onset, device-route, or long-run qualification. Each Windows, macOS, Linux, mobile, or XR backend needs evidence for the hardware boundary it actually owns.
+
+Define the Python-free finish line before claiming completion: a clean-machine default installation starts and completes every required operation without Python, PySide, PyInstaller, or a Python worker. An optional, bounded, supervised compatibility worker can be a migration tool, but it must not remain the hidden final authority or be counted as a Rust-only distribution.
 
 ## Release Gate
 

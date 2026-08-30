@@ -52,6 +52,8 @@ Treat “remote CLI” as a semantic command catalog, not as access to `argv`, a
 - stale/lease behavior and a safe neutral state when momentary;
 - sanitized audit fields and errors.
 
+Model local arming or operator approval as a generation-scoped safety acknowledgement, not a Boolean that survives every configuration change. A material package, participant/setup, device-route, output, or calibration change should revoke it. Remote grants, reconnects, and replayed commands must not inherit or recreate local arm authority.
+
 The remote contract should be a strict subset or deliberate projection of the domain action enum. Map it with exhaustive Rust matches; never accept a string and look up an arbitrary command, Tauri invoke name, function, plugin, or CLI parser. The same pure reducer may serve local UI, tests, and remote requests only after each adapter has applied its own authentication and authorization policy.
 
 A manifest can let the phone render compatible buttons, sliders, toggles, and joysticks, but it is descriptive, versioned data. It cannot grant a scope, lower a bound, select a native function, or prove identity. Keep the remote feature disabled by default, construct transports inertly, and require an explicit local activation path before any discovery, listener, server, or peer connection starts.
@@ -69,6 +71,8 @@ Represent scopes and actions with enums or exact matches. Include session ID, co
 
 Use presentation-only mode when the remote result should affect only what the settings WebView displays. Native snapshots may flow out to the bridge, while returned shared scenes terminate at a renderer and have no `invoke` path into Rust. Document this boundary and test that remote frames cannot alter durable state, device output, files, settings, markers, history, or native stream publication.
 
+Observation authority is separate from mutation authority. A read scope must gate every state-bearing path: the initial snapshot, requested snapshots, live publication, state heartbeats, and any snapshot embedded in an acknowledgement. When a peer has mutation scope but no read scope, return only the bounded command/result metadata needed to acknowledge that operation.
+
 ## Activation, Pairing, Proof, and Revocation
 
 Remote networking must be inert on page load. A defensible session flow is:
@@ -80,6 +84,10 @@ Remote networking must be inert on page load. A defensible session flow is:
 5. Both independently compute the capability/scope intersection. The local UI shows the peer and requested authority; Rust records only the accepted, expiring grant.
 6. Enable application messages only after mutual proof, matching negotiation, and any required local Accept action. Return a fresh authoritative snapshot rather than replaying an unbounded history.
 7. Stop and revoke on explicit Stop, logout, invitation expiry, application shutdown, destroyed owner window, unrecoverable protocol error, or policy change. Reconnect creates a new epoch and repeats proof; late frames from an earlier epoch remain invalid.
+
+Bind active ownership to the complete authenticated generation, such as `(session, epoch, controller, owner token)`. Disconnect and `Drop` cleanup must compare-and-clear that exact identity. An old socket must not revoke a replacement controller, overwrite a rotated session, or change a disabled target back to a waiting state.
+
+Invalidation is an application transition, not just credential cleanup. Disabling remote access, rotating pairing material, or changing granted scopes/configuration must atomically drive an active remotely owned operation to its documented safe state before the owner and lease are cleared. Test these races while the target is active, not only while idle.
 
 The WebView can own connection and framing without owning native authorization. Where remote actions can mutate native state, have Rust retain the proof policy, independently canonicalize the bounded hello objects, verify/generate role-bound proofs, and only then mint a short-lived grant bound to peer, epoch, scopes, and owning window. If a presentation-only profile keeps proof entirely in browser code, give that WebView no native mutation capability and document the lower-trust boundary. Never expose a command that lets arbitrary WebView data manufacture or widen a grant.
 
@@ -108,6 +116,8 @@ For continuous input:
 - require several fresh frames if the product needs recovery hysteresis.
 
 Momentary controls need a target-enforced lease/dead-man rule. Each accepted frame renews a bounded lease; release sends an explicit neutral value, and expiry forces the Rust authority to the documented safe state. Do not let a backgrounded phone leave a control pressed indefinitely. Discrete nonreplaceable operations remain reliable commands with an acknowledgement; they must not travel on a lossy latest-state lane.
+
+Namespace application-command deduplication by authenticated principal/origin plus command ID and the target's application-authority generation, not by socket. Fingerprint the logical command body, not a fresh transport-envelope sequence, because an identical retry may be re-enveloped after a lost acknowledgement or transport reconnect. Return the exact cached acceptance or rejection for an identical retry and reject reuse of the same ID with a different payload. Preserve the cache across transport recovery while application authority remains valid; rotate or clear it only when that application authority generation is invalidated. This prevents one controller from pre-seeding IDs used by a local operator or another controller while preserving at-most-once effects across reconnect.
 
 For an ordinary interactive starting profile—not a timing guarantee—BRSP uses a 100 ms active-intent heartbeat, 500 ms target lease, 250 ms authoritative-state heartbeat, 2,000 ms stale threshold, and three accepted frames before clearing the stale presentation. Change these only from product consequences and measured browser/network behavior; keep the lease enforced by native/target authority, and never claim real-time performance from the constants alone.
 
@@ -169,6 +179,20 @@ For a Party/shared-scene profile, maintain one independently authenticated conne
 Define behavior for owner-window reload/destruction, phone background/lock, network loss/change, sleep/wake, signaling outage, TURN failure, duplicate Start, simultaneous Stop, stale state, and reconnect. Stop reconnecting after explicit Stop or revocation. Keep connection status, accepted scopes, peer label, route class, stale state, and Stop affordance visible and accessible.
 
 Do not silently transfer authority to another peer or local automation on failure. For presentation, retaining the last scene with an explicit stale indication may be appropriate. For an active momentary control, lease expiry should neutralize it. Privileged irreversible actions need stronger confirmation/interlocks than a low-latency companion button.
+
+Distinguish a momentary-input lease from a whole-controller deadman. The target owns both expiry decisions using its monotonic clock; never trust a controller-supplied deadline. Refresh only after a fresh, valid canonical message and do not invent an undocumented private keepalive when the protocol already has a suitable control such as a snapshot request. Lease freshness usually belongs to transport state and should not churn the semantic compare-and-swap revision. Deadman expiry should pause or neutralize active output and revoke the exact owner in one target-local operation.
+
+Keep listener construction inert. Bind a LAN listener only after explicit local enable, return a port/firewall/bind failure to the UI without crashing startup, and keep disabled ingress fail-closed. A packaged startup test should verify that the feature owns no attributable LAN/remote-control listener before activation.
+
+## Cross-Language Wire Checklist
+
+When Rust and JavaScript share the protocol:
+
+- keep browser-visible integers within JavaScript's safe range, use unsigned 32-bit sequence spaces, or encode larger values losslessly as decimal strings;
+- define canonical text bytes, key decoding, HMAC output encoding, field order, role order, and newline rules with shared fixtures;
+- sort scopes by their wire strings and reject duplicates before proof calculation;
+- reject unknown fields and bound nesting/collections, but avoid relying on Serde combinations whose documented behavior is incompatible, such as `flatten` with `deny_unknown_fields` without a full-frame test;
+- use one documented sequence space per lane and exercise wrap/replay rules in both implementations.
 
 ## Verification and Claim Discipline
 

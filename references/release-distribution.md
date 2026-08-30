@@ -16,6 +16,10 @@ Use this reference for release design. Exact action versions, store rules, certi
 
 Run format/type/lint/unit/contract tests once, then a host-native build matrix for Windows, Linux, macOS Intel/ARM, and supported mobile targets. Cache dependency/build artifacts with keys derived from lockfiles, toolchain, target, profile, and relevant features—never use cache output as release provenance.
 
+Run an explicit job with the workspace's declared `rust-version`; a newer floating stable job cannot prove MSRV compatibility, and the resolved Tauri dependency graph may require a newer compiler than the manifest claims. Keep one reviewed Cargo lock for the shipped workspace and use frozen frontend installs.
+
+Treat generated native libraries and compiled frontend assets as release inputs with provenance, not convenient leftovers. Build-system dependency graphs must include shared path crates and root lockfiles. A bypass that skips a producer must also exclude its previous output from packaging. If compiled web assets are tracked, rebuild them in CI and fail on drift.
+
 For GitHub releases, the official `tauri-action` can build and upload artifacts. Add the missing production gates around the tutorial baseline: current Linux build dependencies, explicit targets, tests before build, signing credentials only in protected jobs, updater artifact creation, draft release, checksum/signature verification, install/launch smoke tests, then promotion. Do not grant `contents: write` to unrelated jobs.
 
 ## Desktop Code Signing

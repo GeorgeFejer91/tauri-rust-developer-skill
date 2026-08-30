@@ -61,9 +61,14 @@ Then implement the smallest end-to-end path. Prefer a small typed frontend API m
 
 - Reuse an existing dependency when it meets the requirement.
 - Add crates with the project's normal Cargo workflow and frontend packages with the detected package manager.
+- Decide workspace ownership deliberately. Prefer one Cargo workspace and lockfile for a Tauri shell plus shared Rust crates; do not create a nested workspace merely to evade an existing repository policy. Update that policy explicitly when the new root files are intentional.
+- Inherit edition, license, repository, and minimum supported Rust version consistently across shipped workspace crates unless a crate has a documented reason to differ.
+- Treat `rust-version` as a tested compatibility claim. Run meaningful checks with that exact toolchain against the resolved `Cargo.lock`; passing on a newer floating `stable` does not validate the declared MSRV, and transitive Tauri dependencies can raise it.
+- Preserve one frontend package manager and canonical lockfile. A multi-page browser/desktop frontend should normally share the same build and dependencies rather than creating a second phone application package.
 - Keep feature flags narrow; many Rust crates and Tauri plugins expose privileged or platform-specific features.
 - Inspect maintenance status, license compatibility, platform support, and security implications before introducing a new dependency.
 - Do not update unrelated dependencies or regenerate lockfiles unnecessarily.
+- Distinguish version pins and lockfiles from stronger supply-chain claims. Android Gradle dependencies, wrapper distributions, Git sources, and CI actions may need their own checksums, locks, or verification metadata.
 - If current information is necessary, consult the crate's documentation, the Tauri plugin documentation, and authoritative release notes.
 
 ## Migration Work

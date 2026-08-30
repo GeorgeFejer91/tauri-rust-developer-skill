@@ -1,6 +1,6 @@
 ---
 name: tauri-rust-developer
-description: Build, extend, debug, review, test, and prepare Tauri v2 applications with idiomatic Rust backends and web frontends. Use for work involving src-tauri, Cargo or Rust code, tauri.conf.json, commands and invoke IPC, events or channels, managed state, async tasks, capabilities, permissions, scopes, CSP, plugins, sidecars, Python-to-Rust migration, desktop or mobile builds, packaging, Tauri migrations, or Rust quality in a Tauri project.
+description: Build, migrate, secure, test, and ship Tauri v2 applications with idiomatic Rust backends and web frontends. Use for Tauri architecture, IPC and capabilities, plugins or sidecars, Python-to-Rust migration, packaging, or architecture decisions about sharing Rust logic with a separate native platform shell. Do not use for unrelated Rust or platform-app work.
 ---
 
 # Tauri + Rust Developer
@@ -26,6 +26,7 @@ Read only the references needed for the task:
 - Read [tauri-security.md](references/tauri-security.md) for every change that adds IPC, plugins, filesystem, shell, HTTP, remote content, new windows, permissions, capabilities, scopes, or CSP changes.
 - Read [desktop-integration.md](references/desktop-integration.md) for windows, WebViews, title bars, splash screens, tray icons, native menus, close/hide behavior, and desktop lifecycle work.
 - Read [mobile-development.md](references/mobile-development.md) for Android/iOS setup, mobile windows, file associations, native bridges, device testing, and store-oriented constraints.
+- Only when the request explicitly involves immersive VR/XR, read [vr-xr-development.md](references/vr-xr-development.md) for Quest/Android/OpenXR architecture, Rust JNI/NDK libraries, Spatial SDK input, hardware video, and physical-headset verification. Do not load or apply this application-context guidance to ordinary Tauri work.
 - Read [sidecars-and-processes.md](references/sidecars-and-processes.md) for external binaries, Node/Python helpers, child-process IPC, artifact naming, permissions, supervision, and shutdown.
 - Read [python-to-rust-migration.md](references/python-to-rust-migration.md) when replacing Python modules, services, sidecars, numerical kernels, validation/parsing code, pandas/NumPy workloads, or data pipelines with Rust or a Rust-backed Python library.
 - Read [plugin-development.md](references/plugin-development.md) when selecting, installing, authoring, permissioning, testing, or publishing a Tauri plugin.
@@ -57,6 +58,7 @@ Identify whether the request is primarily:
 - debugging, testing, performance, or security hardening;
 - latency-critical acquisition, streaming, control, or presentation;
 - opt-in remote companion control, browser-to-app synchronization, or presentation-only shared scenes;
+- explicitly requested VR/XR architecture, an Android/Quest Rust library, or a companion Tauri interface for a native immersive app;
 - migration, packaging, signing, or release preparation;
 - Python-to-Rust migration, extension packaging, or sidecar replacement.
 

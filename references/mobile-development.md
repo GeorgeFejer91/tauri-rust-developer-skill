@@ -2,6 +2,8 @@
 
 Use this guide for Tauri applications targeting Android or iOS. Mobile APIs and store requirements change rapidly; verify the current Tauri, Android, and Apple documentation before implementation.
 
+Only when the request explicitly includes an immersive Quest/OpenXR application, also read [vr-xr-development.md](vr-xr-development.md). Tauri mobile support does not make a WebView the correct owner of an immersive Activity, scene, frame loop, controller input, or headset lifecycle.
+
 ## Architecture and Setup
 
 - Keep `run` in a reusable library entry point and preserve the generated mobile entry-point attribute.
@@ -53,6 +55,8 @@ Deduplicate repeated delivery, validate URL schemes and file types, canonicalize
 
 For a frontend that also runs on the web, isolate native functionality behind a typed adapter. Platform detection is a usability branch, not an authorization boundary; the backend capability and OS permission still govern the call. Lazy-loading an optional guest package can keep browser builds clean, but verify the bundler actually splits it and never swallow failures that represent required product behavior.
 
+When Gradle builds and packages a Rust `cdylib`, declare the root `Cargo.toml`, `Cargo.lock`, leaf crate, and every shared path crate as task inputs. Otherwise a shared-core change can leave an incremental build packaging a stale `.so`. A `skipRustBuild` or fallback flag must also exclude the generated JNI library directory; skipping only the producer task can package bytes from an earlier build.
+
 ## Lifecycle
 
 Mobile apps are suspended, resumed, rotated, memory-pressured, and sometimes terminated without a desktop-style quit path. Persist critical work incrementally, make commands idempotent where retries are possible, reconnect listeners after recreation, and cancel or checkpoint long tasks when background rules require it.
@@ -65,6 +69,8 @@ Design the WebView UI for native constraints: safe-area insets, software-keyboar
 - test simulator/emulator and at least one physical device when hardware or lifecycle matters;
 - exercise cold/warm file opens, deep links, permission denial, rotation, background/foreground, and process restoration;
 - verify generated manifests/plists, capability files, icons, bundle IDs, signing settings, and store privacy declarations;
+- inspect APK/AAB ABI entries, merged manifest, cleartext policy, permissions, and native symbols rather than treating `assemble` success as sufficient;
+- test any native-build bypass by seeding a prior `.so`, rebuilding with the bypass and forced task execution, and proving the stale library is absent from the artifact;
 - state the exact untested device/OS matrix.
 
 ## Authoritative Sources

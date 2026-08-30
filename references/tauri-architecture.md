@@ -80,6 +80,26 @@ Use the project's existing layout if it is coherent. Architecture changes should
 
 On the frontend, centralize native calls in a small typed API layer. Components should not need to know raw command names, plugin permission details, or wire-level error shapes.
 
+## Shared Core Across Native Shells
+
+When desktop, browser, mobile, or XR targets share product semantics, separate application authority from framework adapters:
+
+```text
+contracts       closed actions, scopes, DTOs, snapshots
+protocol        transport-neutral proof, negotiation, sequencing
+domain/core     pure authoritative reducer
+tauri adapter   desktop IPC, networking, lifecycle
+JNI adapter     Android/XR lifecycle and native APIs
+browser adapter strict web implementation or an explicit Wasm build
+```
+
+- Keep Tauri, Android/JNI, UI, filesystem, networking, audio, and device types out of the shared domain crate. Platform adapters should translate bounded requests into domain operations and translate results back.
+- Separate semantic actions from transport envelopes. Replacing WebSocket with WebRTC, or IPC with JNI, should not change the reducer or action catalogue.
+- Preserve the caller origin explicitly. Local-only operations must not become remote merely because both adapters call the same reducer.
+- Prefer one semantic gateway per target over sockets or `invoke` calls scattered through UI components and subsystems.
+- If a browser mirrors a Rust reducer in JavaScript because Wasm is not justified, use the same golden fixtures and differential tests. Similar type names or transitions are not evidence of parity.
+- Treat timing tier as a target capability. Shared contracts and state-machine code do not make WebView, browser, desktop-audio, and XR output timing equivalent.
+
 ## Multi-Runtime Frontends
 
 If the same UI must run in Tauri, a browser-only mock, and a hosted web application, define one typed product API and provide explicit adapters—for example native IPC, an in-memory test fake, and a REST/SSE client. Select the adapter once during bootstrap and make unavailable native behavior an explicit capability/result, not scattered `window.__TAURI__` checks or silent no-ops.

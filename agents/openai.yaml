@@ -1,4 +1,4 @@
 interface:
   display_name: "Tauri & Rust Developer"
-  short_description: "Build Tauri apps and migrate Python to Rust"
-  default_prompt: "Use $tauri-rust-developer to build or review this Tauri v2/Rust application, including an incremental Python-to-Rust migration when relevant."
+  short_description: "Build secure Tauri apps and shared Rust cores"
+  default_prompt: "Use $tauri-rust-developer to build or review this Tauri v2/Rust application, including Python migration or an explicitly requested shared native-platform core when relevant."
