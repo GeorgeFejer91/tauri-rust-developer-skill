@@ -1,10 +1,11 @@
 # Provenance and License Notices
 
-This skill is an original synthesis of three permissively licensed skill repositories plus independently reviewed, unlicensed Tauri source repositories. It consolidates compatible ideas, resolves overlaps into one workflow, and adds explicit live-documentation guards where Tauri tooling is version-sensitive.
+This skill is an original synthesis of permissively licensed skill and application repositories plus independently reviewed, unlicensed Tauri source repositories. It consolidates compatible ideas, resolves overlaps into one workflow, and adds explicit live-documentation guards where Tauri tooling is version-sensitive.
 
 ## Contents
 
 - [Source Snapshot](#source-snapshot)
+- [Application Protocol Sources](#application-protocol-sources)
 - [Research Corpus](#research-corpus)
 - [Synthesis Decisions](#synthesis-decisions)
 - [MIT License Notice: leonardomso/rust-skills](#mit-license-notice-leonardomsorust-skills)
@@ -23,9 +24,20 @@ This skill is an original synthesis of three permissively licensed skill reposit
 
 The clone paths refer to the local research workspace used to construct this skill; they are not included in the published skill repository. They are evidence sources, not runtime dependencies: `tauri-rust-developer` remains usable if copied or installed by itself.
 
+## Application Protocol Sources
+
+| Source | Commit | License | Primary influence and boundary |
+|---|---|---|---|
+| [GeorgeFejer91/browser-remote-sync-protocol](https://github.com/GeorgeFejer91/browser-remote-sync-protocol/tree/62ff66c6df724847c1e54161feabb470b67b1192) | `62ff66c6df724847c1e54161feabb470b67b1192` | MIT | Transport-neutral BRSP/1 authority model, mutual HMAC proof, narrow scopes, reliable control versus replaceable state, VDO.Ninja data-only adapter, reusable application-integration starter, Marionette companion profile, and qualification discipline |
+| [GeorgeFejer91/affect-tracker-web](https://github.com/GeorgeFejer91/affect-tracker-web) | `9e45c4cdc987a91a8cdb00ec3b52cc335ebcf8cb` | BSD-3-Clause | Tauri settings-WebView plus external-browser Flubber Party architecture, shared-scene fan-out, native-snapshot outbound flow, presentation-only return path, smartphone-local camera, exact CSP/service boundary, and the documented physical-test gap |
+
+The new Marionette reference is an original compact synthesis; it does not embed source code or prose from either repository. Affect Tracker is cited only as a qualified architecture case study. Its experimental Party uses a public fixed room with `password: false` and does not implement BRSP mutual proof or scope negotiation, so it is not presented as BRSP/1 conformance or a production authentication design.
+
+The latency-critical reference was reconciled line-for-line on 2026-08-30 from the then-installed `tauri-rust-developer` skill into this canonical repository. Its linked Tauri, operating-system, LSL, and PsychoPy documentation remains subject to the skill's live-documentation rule when implementing platform-specific timing behavior.
+
 ## Research Corpus
 
-The parent workspace also preserves pinned official-document and community indexes under `research-sources/`, 21 downloaded Tauri YouTube caption/metadata sets, the official 270-page community PDF plus extracted text and representative renders, and snapshots of selected written tutorials. These are research evidence, not redistributed skill dependencies. Exact Tauri source decisions are in [source-ledger.md](source-ledger.md).
+The parent workspace also preserves pinned official-document and community indexes under `research-sources/`, 21 downloaded Tauri YouTube caption/metadata sets, the official 270-page community PDF plus extracted text and representative renders, snapshots of selected written tutorials, and the two application-protocol repositories above. These are research evidence, not redistributed skill dependencies. Exact Tauri source decisions are in [source-ledger.md](source-ledger.md).
 
 A separate 2026-08-22 research pass reviewed 23 complete English YouTube caption tracks about Python-to-Rust migration, PyO3, Pydantic, Polars and scientific/data workloads, plus current primary Rust, PyO3, maturin, Arrow, Polars, DataFusion, CPython and production-case-study documentation. Captions and source prose are not included. The source-by-source decisions and saturation boundary are published in [python-migration-source-ledger.md](python-migration-source-ledger.md).
 

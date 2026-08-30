@@ -32,6 +32,8 @@ Read only the references needed for the task:
 - Read [files-and-persistence.md](references/files-and-persistence.md) for dialogs, filesystem access, watched paths, settings stores, SQLite/databases, migrations, and secret storage.
 - Read [system-integrations.md](references/system-integrations.md) for notifications, deep links, single-instance behavior, autostart, global shortcuts, clipboard, external opening, and restored window state.
 - Read [performance-and-production.md](references/performance-and-production.md) for polling, IPC batching, streaming, caches, startup, resource limits, large data, profiling, and production-readiness reviews.
+- Read [latency-critical-systems.md](references/latency-critical-systems.md) when lowest possible latency, low jitter, deterministic timing, high-rate acquisition, multiple live devices, clock alignment, deadline-sensitive output, or scoped OS scheduling are central requirements.
+- Read [marionette-remote-control.md](references/marionette-remote-control.md) when an external browser or phone controls a Tauri app, or for remote CLI actions, companion controls, BRSP/VDO.Ninja data-only sync, peer-to-peer WebRTC control, or shared Party scenes.
 - Read [frontend-frameworks.md](references/frontend-frameworks.md) for static-output/SSR decisions, React/Vue/Svelte/Solid/Angular, meta-frameworks, routing, HMR, and Rust/WASM frontends.
 - Read [networking.md](references/networking.md) for HTTP, WebSockets, transfers, OAuth, local servers, FFI, or shared native libraries.
 - Read [testing-debugging.md](references/testing-debugging.md) for mocks, end-to-end tests, debuggers, failure artifacts, and platform-specific diagnosis.
@@ -53,6 +55,8 @@ Identify whether the request is primarily:
 - feature work across frontend and Rust;
 - a Rust-only or frontend-only change;
 - debugging, testing, performance, or security hardening;
+- latency-critical acquisition, streaming, control, or presentation;
+- opt-in remote companion control, browser-to-app synchronization, or presentation-only shared scenes;
 - migration, packaging, signing, or release preparation;
 - Python-to-Rust migration, extension packaging, or sidecar replacement.
 
@@ -83,6 +87,10 @@ Choose the narrowest communication primitive:
 - managed state for shared native resources, not arbitrary frontend state.
 
 Specify request types, response types, error shape, cancellation or lifecycle needs, and security permissions before implementation.
+
+For latency-critical work, also define the measured endpoints, monotonic clock domains, ordering requirements, overload behavior, and which data is authoritative before choosing threads, queues, IPC, or priority settings.
+
+For remote companion work, first choose presentation-only versus native application control. Define typed actions/scopes, the Rust authority, explicit activation, pairing/proof/revocation, freshness and lease behavior, and exact transport/CSP dependencies before opening a connection. Never turn arbitrary DOM, global input, shell, file, URL, or credential access into a remote action surface.
 
 ### 4. Implement One Vertical Slice
 

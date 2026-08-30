@@ -21,6 +21,7 @@ Use this map to route uncommon tasks and identify missing expertise. A checked i
 - [x] native dialogs, notifications, clipboard, opener, and window-state restoration
 - [x] drag/drop
 - [x] mobile file associations and cold/warm delivery
+- [x] external browser/smartphone Marionette control, typed Rust reducers, and presentation-only remote scenes
 
 ## Data and Integrations
 
@@ -32,6 +33,7 @@ Use this map to route uncommon tasks and identify missing expertise. A checked i
 - [x] settings stores and Stronghold-style secret-vault strategy
 - [x] OS keychain integrations
 - [x] HTTP/WebSocket networking, downloads, retries, proxies, and TLS
+- [x] BRSP/VDO.Ninja data-only WebRTC, raw WebRTC, and WebSocket remote-control transport selection
 - [x] sidecars, child processes, supervision, and local IPC choices
 - [x] embedded servers, FFI, and shared Rust libraries
 - [x] plugin use, plugin authoring, permissions, scopes, and mobile plugin bridges
@@ -40,6 +42,7 @@ Use this map to route uncommon tasks and identify missing expertise. A checked i
 
 - [x] trust boundaries, input validation, safe errors, and secret handling
 - [x] capabilities, permissions, scopes, CSP, remote content, and navigation
+- [x] opt-in remote activation, mutual proof, narrow action scopes, session leases, revocation, and per-window authority
 - [x] sidecar/plugin privilege review
 - [x] updater signing and supply-chain hardening
 - [x] threat modeling, audit tooling, dependency policy, and incident-safe logging
@@ -51,6 +54,8 @@ Use this map to route uncommon tasks and identify missing expertise. A checked i
 - [x] mocked Tauri runtime and current WebDriver end-to-end recipes
 - [x] debugging on Windows, macOS, Linux, Android, and iOS
 - [x] performance, polling/IPC batching, streaming, startup, memory, and bundle-size profiling
+- [x] latency/jitter contracts, bounded critical pipelines, multi-clock alignment, load shedding, and scoped OS scheduling
+- [x] direct/relay, physical phone/WebView, lifecycle, congestion, and remote-protocol claim qualification
 - [x] accessibility, keyboard behavior, native conventions, and offline UX
 
 ## Delivery

@@ -24,6 +24,8 @@ The compact [SKILL.md](SKILL.md) routes work into focused references covering:
 - incremental Python-to-Rust migration, PyO3/maturin extensions, sidecar replacement, and Rust-backed data-science pipelines;
 - filesystem access, settings, SQLite, migrations, keychains, and encrypted storage;
 - networking, OAuth, WebSockets, transfers, localhost services, and native libraries;
+- opt-in smartphone/browser Marionette control with typed Rust authority, BRSP/VDO.Ninja/WebSocket transport choices, scoped capabilities, and physical cross-runtime qualification;
+- latency-critical acquisition, bounded live-data pipelines, clock mapping, deadline-aware output, and measured OS scheduling;
 - React, Vue, Svelte, Solid, Angular, Next.js, Nuxt, Qwik, and Rust/WASM frontends;
 - mocks, WebdriverIO, real-app E2E, platform debugging, performance, and profiling;
 - CI matrices, installers, code signing, notarization, updater channels, and rollback.
@@ -63,7 +65,7 @@ Follow the current Claude Code skill-discovery rules if your installation uses a
 
 ## Evidence and Version Policy
 
-The guidance was synthesized from pinned Rust/Tauri/Codex/Claude skill repositories, current official Tauri, Rust, PyO3, maturin, Arrow, Polars, DataFusion and CPython documentation, written tutorials, production case studies, a 270-page community book, 21 Tauri tutorial transcript sets, and 23 individually reviewed Python-to-Rust video transcript sets.
+The guidance was synthesized from pinned Rust/Tauri/Codex/Claude skill repositories, current official Tauri, Rust, PyO3, maturin, Arrow, Polars, DataFusion and CPython documentation, written tutorials, production case studies, the Browser Remote Sync Protocol and Affect Tracker cross-runtime architecture, a 270-page community book, 21 Tauri tutorial transcript sets, and 23 individually reviewed Python-to-Rust video transcript sets.
 
 The [source ledger](references/source-ledger.md) records every processed source as adopted, confirmed, corrected, partial, or rejected. It deliberately rejects stale Tauri v1 configuration, disabled CSP, broad filesystem/shell/network authority, fictional APIs, panic-heavy runtime code, unauthenticated localhost protocols, and unsafe release shortcuts.
 
@@ -81,6 +83,8 @@ Tauri and platform tooling change quickly. A project's pinned versions take prec
     ├── tauri-architecture.md
     ├── rust-quality.md
     ├── tauri-security.md
+    ├── latency-critical-systems.md
+    ├── marionette-remote-control.md
     ├── python-to-rust-migration.md
     ├── python-migration-source-ledger.md
     └── ...
