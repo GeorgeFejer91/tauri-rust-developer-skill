@@ -34,7 +34,9 @@ Desktop dialogs generally return paths. Mobile differs: iOS can return file URLs
 
 For destructive confirmation dialogs, describe the exact consequence and make the safer action the default. Avoid blocking Rust dialog APIs on an async or UI-sensitive path when a callback/non-blocking form works.
 
-When path choice itself is privileged, expose a no-argument application command and open the operating-system picker in Rust. Do not accept a caller-supplied path merely because the same WebView could have opened a dialog. If the frontend does not need direct dialog commands, initialize the plugin for Rust use without granting its frontend open permission. Keep the path-bearing verified object native and non-serializable; return a bounded path-free summary and stable sanitized errors across IPC. A digest recorded during inspection is evidence of what was checked, not a permanent capability: reverify the retained receipt immediately before consequential use to close the time-of-check/use gap.
+When path choice itself is privileged, expose a no-argument application command and open the operating-system picker in Rust. Do not accept a caller-supplied path merely because the same WebView could have opened a dialog. If the frontend does not need direct dialog commands, initialize the plugin for Rust use without granting its frontend open permission. Keep the path-bearing verified object native and non-serializable; return a bounded path-free summary and stable sanitized errors across IPC.
+
+An integrity receipt must bind content, not merely a path. For a consequential parse, compile, import, or preload, enforce the byte limit while reading, then hash and parse/decode the exact same bounded byte snapshot or retained file handle. Checking a digest and then reopening a mutable path leaves a time-of-check/use race. For streaming inputs, feed the hash and consumer from the same chunks or copy them once into an owned staged resource; retaining a handle prevents path substitution but may not prevent in-place writes. If retaining the source snapshot is impractical, stage an application-owned immutable or content-addressed copy and verify that staged content before handing it to the next owner. Assets prepared later, such as WAV or other media, need their own expected digest and generation carried into native preload; bind the decoded/prepared resource to those exact bytes before execution rather than inferring media integrity from a manifest or schedule check.
 
 ## Filesystem Design
 
@@ -118,7 +120,7 @@ Stronghold is an application-managed encrypted vault; an OS keychain delegates p
 
 ## Tests
 
-- filesystem: cancellation, traversal, symlink, scope denial, oversized file, atomic-save failure, non-ASCII/long paths;
+- filesystem: cancellation, traversal, symlink, scope denial, oversized file, atomic-save failure, non-ASCII/long paths, path replacement between verification and use, and media drift before preload;
 - store: crash before save, concurrent writes, corrupt JSON, schema upgrade;
 - database: clean install, sequential upgrades, failed migration rollback, concurrency, locked database, parameterization;
 - secrets: wrong password, corrupt vault, missing salt, interrupted save, redacted errors.

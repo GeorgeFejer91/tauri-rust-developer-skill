@@ -5,7 +5,7 @@ This skill is an original synthesis of permissively licensed skill and applicati
 ## Contents
 
 - [Source Snapshot](#source-snapshot)
-- [Application Protocol Sources](#application-protocol-sources)
+- [Application and Architecture Sources](#application-and-architecture-sources)
 - [Research Corpus](#research-corpus)
 - [Synthesis Decisions](#synthesis-decisions)
 - [MIT License Notice: leonardomso/rust-skills](#mit-license-notice-leonardomsorust-skills)
@@ -24,21 +24,22 @@ This skill is an original synthesis of permissively licensed skill and applicati
 
 The clone paths refer to the local research workspace used to construct this skill; they are not included in the published skill repository. They are evidence sources, not runtime dependencies: `tauri-rust-developer` remains usable if copied or installed by itself.
 
-## Application Protocol Sources
+## Application and Architecture Sources
 
 | Source | Commit | License | Primary influence and boundary |
 |---|---|---|---|
 | [GeorgeFejer91/browser-remote-sync-protocol](https://github.com/GeorgeFejer91/browser-remote-sync-protocol/tree/62ff66c6df724847c1e54161feabb470b67b1192) | `62ff66c6df724847c1e54161feabb470b67b1192` | MIT | Transport-neutral BRSP/1 authority model, mutual HMAC proof, narrow scopes, reliable control versus replaceable state, VDO.Ninja data-only adapter, reusable application-integration starter, Marionette companion profile, and qualification discipline |
 | [GeorgeFejer91/affect-tracker-web](https://github.com/GeorgeFejer91/affect-tracker-web) | `9e45c4cdc987a91a8cdb00ec3b52cc335ebcf8cb` | BSD-3-Clause | Tauri settings-WebView plus external-browser Flubber Party architecture, shared-scene fan-out, native-snapshot outbound flow, presentation-only return path, smartphone-local camera, exact CSP/service boundary, and the documented physical-test gap |
 | [GeorgeFejer91/pps-kit](https://github.com/GeorgeFejer91/pps-kit/tree/4be35ee3c05c1e06532247d446862919ded1639c) | `4be35ee3c05c1e06532247d446862919ded1639c` | MIT | Primary Tauri/browser Runner candidate with pure Rust contracts/core, canonical semantic remote control, exact-MSRV and generated-artifact gates, staged Python migration, and a separately qualified optional native Quest/JNI application context |
+| [rustdesk/rustdesk](https://github.com/rustdesk/rustdesk/tree/03a7fc5992069cc5bc9f7c36b872483dddf4f472) | `03a7fc5992069cc5bc9f7c36b872483dddf4f472` | AGPL-3.0 | Architecture-only evidence for rendezvous versus direct/relay paths, per-session lifecycle and stale cleanup, bounded admission/backpressure, and platform-service adapters; raw input, unbounded channels, source code, and source prose were not adopted |
 
-The Marionette and optional native-platform references are original compact syntheses; they do not embed source code or prose from these case-study repositories. Affect Tracker is cited only as a qualified architecture case study. Its experimental Party uses a public fixed room with `password: false` and does not implement BRSP mutual proof or scope negotiation, so it is not presented as BRSP/1 conformance or a production authentication design. PPS Kit is also qualified evidence: its host-side Rust, browser, Tauri, and Android builds passed, but the Python/PySide V1 remains the validated scientific authority and physical phone/Quest plus macOS/Linux timing qualification remain open. Quest/XR is therefore an optional application context, not a generic Tauri requirement.
+The Marionette and optional native-platform references are original compact syntheses; they do not embed source code or prose from these case-study repositories. Affect Tracker is cited only as a qualified architecture case study. Its experimental Party uses a public fixed room with `password: false` and does not implement BRSP mutual proof or scope negotiation, so it is not presented as BRSP/1 conformance or a production authentication design. RustDesk was reviewed only for general architecture questions: this skill independently states the resulting constraints and does not copy, vendor, or translate its AGPL-3.0 implementation. PPS Kit is also qualified evidence: its host-side Rust, browser, Tauri, and Android builds passed, but the Python/PySide V1 remains the validated scientific authority and physical phone/Quest plus macOS/Linux timing qualification remain open. Quest/XR is therefore an optional application context, not a generic Tauri requirement.
 
 The latency-critical reference was reconciled line-for-line on 2026-08-30 from the then-installed `tauri-rust-developer` skill into this canonical repository. Its linked Tauri, operating-system, LSL, and PsychoPy documentation remains subject to the skill's live-documentation rule when implementing platform-specific timing behavior.
 
 ## Research Corpus
 
-The parent workspace also preserves pinned official-document and community indexes under `research-sources/`, 21 downloaded Tauri YouTube caption/metadata sets, the official 270-page community PDF plus extracted text and representative renders, snapshots of selected written tutorials, and the application-protocol and case-study repositories above. These are research evidence, not redistributed skill dependencies. Exact Tauri source decisions are in [source-ledger.md](source-ledger.md).
+The parent workspace also preserves pinned official-document and community indexes under `research-sources/`, 21 downloaded Tauri YouTube caption/metadata sets, the official 270-page community PDF plus extracted text and representative renders, snapshots of selected written tutorials, and the application, architecture, and protocol repositories above. These are research evidence, not redistributed skill dependencies. Exact Tauri source decisions are in [source-ledger.md](source-ledger.md).
 
 A separate 2026-08-22 research pass reviewed 23 complete English YouTube caption tracks about Python-to-Rust migration, PyO3, Pydantic, Polars and scientific/data workloads, plus current primary Rust, PyO3, maturin, Arrow, Polars, DataFusion, CPython and production-case-study documentation. Captions and source prose are not included. The source-by-source decisions and saturation boundary are published in [python-migration-source-ledger.md](python-migration-source-ledger.md).
 

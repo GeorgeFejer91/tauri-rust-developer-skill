@@ -234,6 +234,12 @@ Then qualify the real matrix: packaged WebView2, WKWebView, and WebKitGTK target
 
 Report exact measured endpoints and untested boundaries. Do not claim “direct Wi-Fi,” “offline LAN,” “real time,” “same pixels,” “secure identity,” or protocol conformance unless the corresponding route, timing, identity service, and conformance fixtures were actually exercised.
 
+## Borrow Architecture, Not Remote-Desktop Semantics
+
+Mature remote-support systems can provide useful evidence for connection supervision when studied at an exact pinned revision with the license recorded. Reusable architectural questions include: how rendezvous is separated from the direct-or-relayed data route; how one connection/session owns teardown and stale-job cleanup; how admission, queues, and overload are bounded; and how platform-specific services sit behind narrow adapters. Reimplement any selected pattern independently behind the application's own transport and service seams.
+
+RustDesk is a remote-desktop product, not an application-semantic control protocol. Do not copy its raw keyboard/pointer injection, screen-control authority, or general input surface into a BRSP action catalog. Do not vendor or translate AGPL-licensed implementation code into a differently licensed application without an explicit compliance decision, and do not copy unbounded-channel patterns merely because they appear in a mature codebase. For a browser companion, BRSP remains the typed contract and authentication/authorization profile, VDO.Ninja/WebRTC or WebSocket remains a replaceable transport, and the Rust application authority remains the only state owner. RustDesk-inspired structure may inform rendezvous/relay, session-lifecycle, backpressure, and platform-adapter design; it must not introduce a second reducer or a generic input receiver.
+
 ## Keep Product Contexts Separate
 
 The discovery/control split, typed owner-fenced native seam, target-owned deadman, bounded channel bring-up, and staged read-only qualification are general Tauri remote-control patterns. Product policy belongs in the application profile:
@@ -246,6 +252,7 @@ The discovery/control split, typed owner-fenced native seam, target-owned deadma
 
 - [Browser Remote Sync Protocol](https://github.com/GeorgeFejer91/browser-remote-sync-protocol/tree/62ff66c6df724847c1e54161feabb470b67b1192), source snapshot `62ff66c6df724847c1e54161feabb470b67b1192`, supplies the transport-neutral BRSP/1 handshake, scoped command/state lanes, latest-intent rules, target authority, VDO.Ninja adapter, reusable application-integration starter, Marionette profile, and qualification model.
 - [Affect Tracker Web/Desktop](https://github.com/GeorgeFejer91/affect-tracker-web/tree/9e45c4cdc987a91a8cdb00ec3b52cc335ebcf8cb), commit `9e45c4cdc987a91a8cdb00ec3b52cc335ebcf8cb`, demonstrates a Tauri settings WebView and external browser exchanging data-only Flubber Party state, with native snapshots flowing outward and returned aggregate scenes remaining presentation-only.
+- [RustDesk](https://github.com/rustdesk/rustdesk/tree/03a7fc5992069cc5bc9f7c36b872483dddf4f472), source snapshot `03a7fc5992069cc5bc9f7c36b872483dddf4f472`, is architecture-only evidence for rendezvous/direct/relay separation, per-session cleanup, bounded admission/backpressure, and platform adapters. RustDesk is AGPL-3.0; no implementation code or prose is copied into this MIT-licensed skill, and its raw-input and unbounded-channel patterns are explicitly excluded from semantic remote-control guidance.
 
 Affect Tracker is an architecture case study, not a BRSP/1-conformant security example: its experimental Party uses a fixed public room and `password: false`, with explicit source selection and bounded membership/sequence checks but no BRSP mutual HMAC proof or scope negotiation. Its current automated tests and desktop CI verify reducers, static transport/CSP wiring, frontend builds, and Rust gates; physical smartphone-to-Tauri Party qualification remains open. Preserve those qualifications when transferring the pattern.
 
