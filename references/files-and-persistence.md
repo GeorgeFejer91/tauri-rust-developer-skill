@@ -38,6 +38,8 @@ When path choice itself is privileged, expose a no-argument application command 
 
 An integrity receipt must bind content, not merely a path. For a consequential parse, compile, import, or preload, enforce the byte limit while reading, then hash and parse/decode the exact same bounded byte snapshot or retained file handle. Checking a digest and then reopening a mutable path leaves a time-of-check/use race. For streaming inputs, feed the hash and consumer from the same chunks or copy them once into an owned staged resource; retaining a handle prevents path substitution but may not prevent in-place writes. If retaining the source snapshot is impractical, stage an application-owned immutable or content-addressed copy and verify that staged content before handing it to the next owner. Assets prepared later, such as WAV or other media, need their own expected digest and generation carried into native preload; bind the decoded/prepared resource to those exact bytes before execution rather than inferring media integrity from a manifest or schedule check.
 
+An outer file-size bound does not validate an inner container length. A tiny truncated file may declare a huge data, image, archive, table, or sample payload. Before allocating from that declaration, check multiplication and integer conversion, require the declared encoded payload to fit within the actual opened source, apply a separate decoded/expanded-byte ceiling, and reserve fallibly. Avoid a second full-payload copy when converting the prepared result into shared ownership, and keep debug formatting bounded and content-free for large/private native resources.
+
 ## Filesystem Design
 
 - Prefer application config/data/cache/log directories for app-owned files.
