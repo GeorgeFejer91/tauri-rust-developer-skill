@@ -24,6 +24,8 @@ device capture -> OS callback -> decode -> authoritative publish
 
 Instrument every boundary with one process-wide monotonic clock where possible. Keep raw device timestamps as evidence; do not replace them with wall-clock time or a smoothed value. Report only the segments actually measured, and identify transport, firmware, driver, display, audio, or remote-host latency that remains outside the application's observation boundary.
 
+For remote control, trace the accepted-command path explicitly: frame received, proof/scope/revision validated, authority work enqueued, reducer applied, effect initiated, and acknowledgement emitted. Report p50, p95, p99, and worst observed separately for the complete observable path and for useful internal segments. Native Rust, WebRTC, or same-Wi-Fi routing does not by itself establish a latency result.
+
 ## Separate Control, Authoritative Data, and Presentation
 
 Treat Tauri as a control and visualization shell around a native timing-sensitive core:
@@ -51,6 +53,8 @@ native supervisor
 
 At the earliest callback boundary, capture host-monotonic receive time and do the minimum work needed to retain the data safely. Then hand off to a bounded sequential owner.
 
+Keep network I/O asynchronous, but route each accepted deadline-relevant action to a bounded native authority queue with one clearly owned execution order. The WebView, a transport callback, and an unbounded Tauri or general-purpose async task queue must not become the deadline clock or state-machine owner. Define queue-full behavior before shipping; for reliable commands, silently dropping or indefinitely delaying an accepted action is not valid.
+
 - Preallocate queues, batch storage, and reusable scratch buffers where profiling shows allocation pressure.
 - Decode each frame once. Share immutable batches or compact owned buffers with downstream branches instead of repeatedly serializing or copying them.
 - Preserve per-source ordering while allowing independent sources to run concurrently.
@@ -76,6 +80,8 @@ Every queue must be bounded and every full/disconnected outcome must have a prod
 | Control/health | Reliable, low-rate state that can also be queried as a snapshot. |
 
 Track queue capacity, current depth, high-water mark, oldest-item age, sequence gaps, callback drops, decoder errors, output errors, reconnects, and renderer drops separately. A large queue may hide a latency failure; admission and health decisions should use age as well as depth.
+
+Resource limits must compose across the whole session. Per-message and per-record bounds are insufficient when many legal records, repeated metadata, pending acknowledgements, retained diagnostics, or serialized copies can exceed the process budget. Set cumulative byte/count budgets, cap initial reservations derived from input, and test the multiplicative worst case.
 
 Define load shedding before overload occurs. Reduce presentation cadence and optional derived work before compromising authoritative acquisition. If the critical lane cannot meet its contract, surface a failed/degraded session instead of producing silently incomplete data.
 
