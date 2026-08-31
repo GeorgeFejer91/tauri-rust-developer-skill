@@ -64,6 +64,8 @@ Build golden fixtures from production-shaped edge cases. Run the old and new imp
 
 For schedule and timing ports, freeze the exact cursor semantics rather than comparing only aggregate counts. Fixtures should cover tie-breaking in numeric rounding, priority and stable ordering for events at the same sample, half-open callback windows and the final-boundary flush, explicit-field precedence when a present but invalid value suppresses a fallback, signed pre-zero samples and their discard rule, aliases/defaults, and reset behavior. Compare the complete ordered event payload and sequential buffer consumption. A mathematically plausible result is still a compatibility regression when it differs from the established contract.
 
+When replacing a legacy final-buffer `frames + 1` or equivalent boundary workaround, model the terminal software boundary explicitly. Emit an engine-owned final-frame-submitted record after all metadata events at that sample, exactly once, and keep device drain/presentation/onset as a separate adapter receipt. Bound both maximum callback frames and the number/density of metadata events during plan construction; otherwise a nominally fixed event buffer can still hide an unbounded schedule scan on the real-time thread.
+
 ## Use a Strangler Migration
 
 1. Select one high-value component with a clean boundary.
