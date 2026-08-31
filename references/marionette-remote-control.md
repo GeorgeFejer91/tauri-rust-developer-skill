@@ -113,6 +113,18 @@ Treat token entropy and token grammar as separate invariants. A canonical base64
 
 Public labels, room names, discovered stream IDs, peer UUIDs, and successful transport connection are routing metadata, not identity. Production account identity, invitation expiry/revocation, abuse controls, and audit policy are separate product services.
 
+### Bound the transport lifecycle independently
+
+Treat socket health as a finite resource contract, not as application authority:
+
+- acquire a permit before upgrading or spawning per-connection work, and hold it through handshake, session, and bounded close; use independent pools for control and relay/rendezvous routes when flooding one route must not starve the other;
+- place finite deadlines on every handshake read, socket write, and graceful close, including rejection and diagnostic writes; a peer that stops reading must not retain a task indefinitely;
+- when proactive Ping/Pong is useful, bind each Ping to an exact payload and receiver-local deadline, reject a mismatched or late Pong, and fence all subsequent frame and outbound work at expiry before a ready branch can win a scheduler race;
+- keep transport liveness separate from the target's semantic lease or controller deadman. Ping/Pong may close a stale connection and trigger exact-owner revocation, but it is not a BRSP command, state frame, diagnostic command sample, or reason to renew semantic authority;
+- after a native claim or relay-slot registration succeeds, funnel every exit through awaited compare-and-clear cleanup for that exact owner/connection. This includes schema rejection, EOF, timeout, parser failure, failed initial/diagnostic write, and reliable-lane overload. RAII/drop cleanup and the semantic deadman remain cancellation/crash fallbacks, not the normal cleanup path.
+
+Bound admission separately from the number of authenticated owners or occupied rooms: unauthenticated, invalid-role, and role-busy peers consume upgrade and handshake resources before those later limits apply. Test capacity rejection, release after every timeout/close path, and isolation between pools without requiring a real network.
+
 ## Separate Reliable Control From Replaceable State
 
 Do not give every message the same delivery semantics.
@@ -123,6 +135,8 @@ Do not give every message the same delivery semantics.
 | Replaceable intent/state | joystick, pointer, slider, current affect state, live scene | complete current value, newest-only backpressure, sequence/epoch checks, heartbeat and stale policy |
 
 Use one duplex peer connection or socket unless isolation or measurements justify more. A separate reverse media stream is unnecessary for ordinary state return.
+
+Give each connection one owned socket writer. A practical bounded shape is a reliable FIFO for control plus one replaceable latest-state slot. Preserve cross-lane causality: an earlier `ready`, acknowledgement, or applied result must be written before a state projection enqueued later, while a bounded drain policy prevents continuous control from starving state forever. Only the writer reports send completion, and only after the bounded write succeeds. If the reliable queue fills or its order tag cannot advance, fail closed and tear down the exact route; never drop one reliable frame, report backpressure, and continue with later control.
 
 When a transport opens separate control and state channels, install SDK/channel listeners before connect, join, announce, or view. The peer may deliver either channel before the corresponding `openChannel` promise returns or before the other lane and application consumer are ready. Bind every event to the selected stream, peer UUID, connection generation, and exact channel instance; retain only a bounded pre-open reliable-control queue and the newest pending state. Enter application-ready only after all required lanes are bound, then drain reliable control in order and publish only the latest state. Reject overflow, duplicate lanes, wrong-peer channels, and late open/message/close events from an earlier generation.
 
@@ -137,7 +151,11 @@ For continuous input:
 
 Momentary controls need a target-enforced lease/dead-man rule. Each accepted frame renews a bounded lease; release sends an explicit neutral value, and expiry forces the Rust authority to the documented safe state. Do not let a backgrounded phone leave a control pressed indefinitely. Discrete nonreplaceable operations remain reliable commands with an acknowledgement; they must not travel on a lossy latest-state lane.
 
+Create a latest-intent lane only for a true complete-current-value control whose newest frame fully supersedes every older frame. Button presses, start/stop, pause/resume, instruction gates, notes, requests, and other discrete transitions remain reliable commands even when they originate from touch input. If the profile has no complete-current-value control, reject `intent` frames rather than adding a lossy lane for symmetry.
+
 Namespace application-command deduplication by authenticated principal/origin plus command ID and the target's application-authority generation, not by socket. Fingerprint the logical command body, not a fresh transport-envelope sequence, because an identical retry may be re-enveloped after a lost acknowledgement or transport reconnect. Return the exact cached acceptance or rejection for an identical retry and reject reuse of the same ID with a different payload. Preserve the cache across transport recovery while application authority remains valid; rotate or clear it only when that application authority generation is invalidated. This prevents one controller from pre-seeding IDs used by a local operator or another controller while preserving at-most-once effects across reconnect.
+
+On a cache hit, distinguish the cached action outcome from current public state. Decide whether a transition changed the target from the newly evaluated candidate/current revision (or an explicit reducer `changed` result), not by comparing the cached result revision with whatever revision is live after intervening revoke/reclaim transitions. Reuse the original bounded action outcome, but attach a freshly projected current public snapshot when the adapter includes state. Otherwise an applied-but-acknowledgement-lost retry can duplicate effects or evidence and can regress a WebView to an older snapshot even though command deduplication itself succeeded.
 
 For an ordinary interactive starting profile—not a timing guarantee—BRSP uses a 100 ms active-intent heartbeat, 500 ms target lease, 250 ms authoritative-state heartbeat, 2,000 ms stale threshold, and three accepted frames before clearing the stale presentation. Change these only from product consequences and measured browser/network behavior; keep the lease enforced by native/target authority, and never claim real-time performance from the constants alone.
 
@@ -204,7 +222,7 @@ At every asynchronous authority boundary, recheck ownership after the `await` an
 
 Do not silently transfer authority to another peer or local automation on failure. For presentation, retaining the last scene with an explicit stale indication may be appropriate. For an active momentary control, lease expiry should neutralize it. Privileged irreversible actions need stronger confirmation/interlocks than a low-latency companion button.
 
-Distinguish a momentary-input lease from a whole-controller deadman. The target owns both expiry decisions using its monotonic clock; never trust a controller-supplied deadline. Refresh only after a fresh, valid canonical message and do not invent an undocumented private keepalive when the protocol already has a suitable control such as a snapshot request. Lease freshness usually belongs to transport state and should not churn the semantic compare-and-swap revision. Deadman expiry should pause or neutralize active output and revoke the exact owner in one target-local operation.
+Distinguish transport Ping/Pong, a momentary-input lease, and a whole-controller deadman. The target owns semantic expiry decisions using its monotonic clock; never trust a controller-supplied deadline. Refresh semantic authority only after the profile's documented fresh, valid canonical control—not after transport Ping/Pong or an undocumented private keepalive. Liveness bookkeeping should not churn the semantic compare-and-swap revision. Transport expiry closes the route and invokes exact-owner revocation; deadman expiry should pause or neutralize active output and revoke the exact owner in one target-local operation.
 
 Keep listener construction inert. Bind a LAN listener only after explicit local enable, return a port/firewall/bind failure to the UI without crashing startup, and keep disabled ingress fail-closed. A packaged startup test should verify that the feature owns no attributable LAN/remote-control listener before activation.
 
@@ -225,7 +243,9 @@ Automated coverage should include:
 - canonical transcript/HMAC fixtures shared across implementations;
 - malformed, oversized, replayed, reflected, stale-epoch, out-of-scope, and unknown-action rejection;
 - reducer and revision/idempotency rules independent of Tauri;
-- newest-only backpressure, reliable-queue limit, heartbeat, lease expiry, stale hold, recovery, and teardown;
+- newest-only backpressure, reliable-before-latest ordering, fail-closed reliable overflow, heartbeat, lease expiry, stale hold, recovery, and teardown;
+- finite handshake/write/close deadlines, pre-upgrade admission release/isolation, late-Pong rejection, expiry precedence over simultaneously ready work, and exact cleanup after every post-claim/post-registration failure;
+- acknowledgement-loss retries after intervening authority revisions, proving effects remain at-most-once while any attached public snapshot remains current;
 - denied Tauri capability/scope and caller-window cases;
 - CSP, vendored SDK, no-media, and no-page-load-connection checks;
 - presentation-only tests proving inbound scenes have no native mutation path.
@@ -236,7 +256,7 @@ Report exact measured endpoints and untested boundaries. Do not claim “direct 
 
 ## Borrow Architecture, Not Remote-Desktop Semantics
 
-Mature remote-support systems can provide useful evidence for connection supervision when studied at an exact pinned revision with the license recorded. Reusable architectural questions include: how rendezvous is separated from the direct-or-relayed data route; how one connection/session owns teardown and stale-job cleanup; how admission, queues, and overload are bounded; and how platform-specific services sit behind narrow adapters. Reimplement any selected pattern independently behind the application's own transport and service seams.
+Mature remote-support systems can provide useful evidence for connection supervision when studied at an exact pinned revision with the license recorded. Reusable architectural questions include: how rendezvous is separated from the direct-or-relayed data route; how one connection/session owns teardown and stale-job cleanup; how admission pools, finite I/O, writers, queues, and overload are bounded; and how platform-specific services sit behind narrow adapters. These are design questions, not reusable wire schemas or implementation fragments. Reimplement any selected pattern independently behind the application's own transport and service seams.
 
 RustDesk is a remote-desktop product, not an application-semantic control protocol. Do not copy its raw keyboard/pointer injection, screen-control authority, or general input surface into a BRSP action catalog. Do not vendor or translate AGPL-licensed implementation code into a differently licensed application without an explicit compliance decision, and do not copy unbounded-channel patterns merely because they appear in a mature codebase. For a browser companion, BRSP remains the typed contract and authentication/authorization profile, VDO.Ninja/WebRTC or WebSocket remains a replaceable transport, and the Rust application authority remains the only state owner. RustDesk-inspired structure may inform rendezvous/relay, session-lifecycle, backpressure, and platform-adapter design; it must not introduce a second reducer or a generic input receiver.
 

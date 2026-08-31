@@ -30,6 +30,8 @@ Then measure the slow segment rather than optimizing by intuition.
 - Put cache ownership and invalidation in the domain/service layer, not scattered commands.
 - Avoid holding locks while querying the OS, database, network, or sidecar.
 - Bound concurrency and cancellation; discard stale results when a newer request supersedes them.
+- Keep prepared media, schedules, and output plans explicitly non-executable until a separately authorized execution owner commits a qualified device route and arm/activation transition. A populated preflight cache is not readiness evidence by itself.
+- Invalidate large cached objects by transferring them to a bounded non-critical retirement owner. Do not let an authority actor, audio callback, render loop, or other deadline-sensitive thread perform the final reference drop and potentially large deallocation.
 
 ## Frontend Rendering
 
