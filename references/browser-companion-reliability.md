@@ -285,6 +285,8 @@ Performance baseline:
 - checkpoint `(transfer, file, offset, rolling/final digest)` for resumability when large or unreliable-network transfers justify it;
 - keep transfer identifiers and grants scoped, expiring, and revocable.
 
+Treat browser file and directory inputs as browser-owned transaction boundaries. Copy the selected `FileList` into an immutable application selection generation, but do not replace or clear the active picker—or rerender a parent that replaces sibling pickers—while its `input`/`change` sequence is still resolving. Update progress/status nodes in place. Fence delayed events by picker identity and selection generation so an older folder event cannot overwrite a newer single-file choice. Reset picker values only through an explicit post-capture or post-transfer path, and exercise file-then-folder plus folder-then-file flows in Chromium, Firefox, and WebKit.
+
 Measure interactive command acknowledgement and state freshness during a saturated upload. Maximum throughput is not a success if controls become sluggish or authentication times out.
 
 ## Resource and Abuse Bounds
@@ -331,7 +333,7 @@ Test layers independently and then together:
 2. Protocol: mutual proof, role/mode mismatch, replay, expired/revoked device, wrong generation, stale/duplicate/gap state, acknowledgement loss and same-ID retry.
 3. Loopback: host/origin parsing, missing Origin with browser cookie, CLI credential separation, one-use bootstrap, body/rate/connection limits, restart race, unauthenticated state/media denial.
 4. Transport: direct and forced TURN, callbacks from stale epochs, data before listener readiness, partial channels, signaling outage, relay failure, reconnect storms, explicit Stop.
-5. Browser UI: real click-to-authority workflows, responsive/mobile layout, background/foreground, file and folder pickers, autoplay policy, codec behavior, passwordless reconnect.
+5. Browser UI: real click-to-authority workflows, responsive/mobile layout, background/foreground, alternating file/folder picker event order without DOM replacement races, autoplay policy, codec behavior, passwordless reconnect.
 6. Load: upload plus commands, multiple listeners, bounded queues, slow receiver, malformed messages/media, disconnect at every transfer stage.
 7. Installed bytes: actual daemon/package/WebView or dedicated browser shell against the published companion, not a development substitute.
 
