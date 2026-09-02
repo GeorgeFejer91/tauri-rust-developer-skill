@@ -22,6 +22,7 @@ Use this map to route uncommon tasks and identify missing expertise. A checked i
 - [x] drag/drop
 - [x] mobile file associations and cold/warm delivery
 - [x] external browser/smartphone Marionette control, typed Rust reducers, and presentation-only remote scenes
+- [x] browser-companion authority/transport generations, reconnect state machines, retry-safe commands, revisioned snapshots, and moving timeline reconciliation
 
 ## Data and Integrations
 
@@ -34,6 +35,7 @@ Use this map to route uncommon tasks and identify missing expertise. A checked i
 - [x] OS keychain integrations
 - [x] HTTP/WebSocket networking, downloads, retries, proxies, and TLS
 - [x] BRSP/VDO.Ninja data-only WebRTC, raw WebRTC, and WebSocket remote-control transport selection
+- [x] bulk browser transfer with integrity, staging, bounded backpressure, resumability decisions, and interactive-latency isolation
 - [x] sidecars, child processes, supervision, and local IPC choices
 - [x] embedded servers, FFI, and shared Rust libraries
 - [x] plugin use, plugin authoring, permissions, scopes, and mobile plugin bridges
@@ -43,6 +45,7 @@ Use this map to route uncommon tasks and identify missing expertise. A checked i
 - [x] trust boundaries, input validation, safe errors, and secret handling
 - [x] capabilities, permissions, scopes, CSP, remote content, and navigation
 - [x] opt-in remote activation, mutual proof, narrow action scopes, session leases, revocation, and per-window authority
+- [x] password/PAKE pairing, password-derived discovery limitations, proof-of-possession remembered devices, one-use loopback bootstrap, and exact browser Origin policy
 - [x] sidecar/plugin privilege review
 - [x] updater signing and supply-chain hardening
 - [x] threat modeling, audit tooling, dependency policy, and incident-safe logging
