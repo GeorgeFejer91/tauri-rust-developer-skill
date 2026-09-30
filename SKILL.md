@@ -48,6 +48,9 @@ Read only the references needed for the task:
 
 ## Core Workflow
 
+For an experiment runner's HTML remote viewer or Remote LSL Recorder tab integration, read [experiment-remote-panels.md](references/experiment-remote-panels.md). Use Remote Panel/1 descriptors and an isolated controller with its own pairing; persisted workspace settings must not restore grants or recording.
+
+
 ### 1. Classify the Task
 
 Identify whether the request is primarily:
